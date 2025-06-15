@@ -3,6 +3,7 @@ import extractPdfText from '@/app/lib/contentUpload/parsePDF';
 import { validateYtLink, getContentFromYoutube } from '@/app/lib/contentUpload/ytUtils';
 import { prepareTextForChunking } from '@/app/lib/contentUpload/processContent';
 import {getTextStatistics} from '@/app/lib/contentUpload/processContent';
+import { generateStructuredNotes } from '@/app/lib/langchain/gemini';
 
 export async function POST(request: NextRequest) {
     try {
@@ -53,7 +54,16 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'No valid chunks created' }, { status: 400 });
         }
 
-        return NextResponse.json({ message: 'Upload successful' }, { status: 200 });
+        console.log('creating notes for content:');
+
+        const notes = await generateStructuredNotes(content);
+        if (notes.error) {
+            console.error('Error generating notes:', notes.error);
+            return NextResponse.json({ error: 'Failed to generate structured notes' }, { status: 500 });
+        }
+        console.log('Generated notes:', notes);
+
+        return NextResponse.json({ message: 'Upload successful', data: notes }, { status: 200 });
     } catch (error) {
         return NextResponse.json(
             { error: 'Failed to upload Content' },
