@@ -1,13 +1,14 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-import { JsonParser, parseStudyNotes } from "@/app/lib/jsonParser"
+import { JsonParser } from "@/app/lib/jsonParser"
+import { StudyNotesStructure } from "../types";
 
 const llm = new ChatGoogleGenerativeAI({
     apiKey: process.env.GOOGLE_API_KEY,
     model: "gemini-2.0-flash",
 });
 
-export async function generateStructuredNotes(fullContent: string) {
+export async function generateStructuredNotes(fullContent: string): Promise<StudyNotesStructure> {
     const messages = [
         new SystemMessage(
             `You are an expert study assistant specializing in creating highly organized and comprehensive study notes. Your goal is to extract key information from provided content and structure it for effective learning and review.
@@ -116,17 +117,21 @@ Do not wrap the JSON in markdown code blocks or any other formatting
 
     if ("content" in response) {
         try {
+            console.log("Response from Gemini:", response.content);
             const result = JsonParser.parseStudyNotes(response);
             if (result.error) {
                 console.error("Error parsing JSON:", result.error);
-                return { error: "Failed to parse structured notes", raw: response.content };
+                throw new Error(result.error);
             }
-            return result;
+            if (!result.data) {
+                throw new Error("No data returned from JSON parser");
+            }
+            return result.data;
         } catch (err) {
             console.error("Failed to parse JSON:", response.content);
-            return { error: "Invalid JSON returned", raw: response.content };
+            throw new Error("Invalid JSON returned");
         }
     }
 
-    return { error: "No content returned from Gemini." };
+    throw new Error("No content returned from Gemini.");
 }

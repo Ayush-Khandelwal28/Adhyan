@@ -1,33 +1,8 @@
-export interface StudyNotesSubsection {
-  subheading: string;
-  points: string[];
-  definitions?: string[];
-  examples?: string[];
-  connections?: string[];
-}
+import { StudyNotesStructure, ParseResult, Flashcard  } from '@/app/lib/types'
 
-export interface StudyNotesSection {
-  heading: string;
-  points: string[];
-  definitions?: string[];
-  examples?: string[];
-  connections?: string[];
-  subsections?: StudyNotesSubsection[];
-}
-
-export interface StudyNotesStructure {
-  title: string;
-  sections: StudyNotesSection[];
-  key_takeaways?: string[];
-  summary: string;
-}
-
-export interface ParseResult<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  raw?: string;
-  fixes_applied?: string[];
+interface FlashcardParsing {
+  front: string;
+  back: string;
 }
 
 export class JsonParser {
@@ -185,6 +160,14 @@ export class JsonParser {
       return content.substring(jsonStart, jsonEnd + 1);
     }
     
+    // Look for JSON array boundaries if no object found
+    const arrayStart = content.indexOf('[');
+    const arrayEnd = content.lastIndexOf(']');
+    
+    if (arrayStart !== -1 && arrayEnd !== -1 && arrayEnd > arrayStart) {
+      return content.substring(arrayStart, arrayEnd + 1);
+    }
+    
     return content;
   }
 
@@ -215,15 +198,29 @@ export class JsonParser {
    */
   private static aggressiveJsonFix(content: string): string {
     try {
-      // Remove any text before first { and after last }
+      // Remove any text before first { or [ and after last } or ]
       const firstBrace = content.indexOf('{');
+      const firstBracket = content.indexOf('[');
       const lastBrace = content.lastIndexOf('}');
+      const lastBracket = content.lastIndexOf(']');
       
-      if (firstBrace === -1 || lastBrace === -1) {
+      let start = -1;
+      let end = -1;
+      
+      // Determine if we're dealing with an object or array
+      if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
+        start = firstBrace;
+        end = lastBrace;
+      } else if (firstBracket !== -1) {
+        start = firstBracket;
+        end = lastBracket;
+      }
+      
+      if (start === -1 || end === -1) {
         throw new Error('No JSON structure found');
       }
       
-      let jsonContent = content.substring(firstBrace, lastBrace + 1);
+      let jsonContent = content.substring(start, end + 1);
       
       // Balance braces
       jsonContent = this.balanceBraces(jsonContent);
@@ -290,6 +287,96 @@ export class JsonParser {
       .replace(/("subsections":\s*\[[\s\S]*?)"definitions":\s*"([^"]+)"/g, '$1"definitions": ["$2"]')
       .replace(/("subsections":\s*\[[\s\S]*?)"examples":\s*"([^"]+)"/g, '$1"examples": ["$2"]')
       .replace(/("subsections":\s*\[[\s\S]*?)"connections":\s*"([^"]+)"/g, '$1"connections": ["$2"]');
+  }
+
+  /**
+   * Validate flashcard structure
+   */
+  private static validateFlashcard(flashcard: any, index: number): string[] {
+    const errors: string[] = [];
+    
+    if (!flashcard || typeof flashcard !== 'object') {
+      errors.push(`Flashcard ${index}: Must be an object`);
+      return errors;
+    }
+    
+    if (!flashcard.front || typeof flashcard.front !== 'string') {
+      errors.push(`Flashcard ${index}: Missing or invalid 'front' field`);
+    }
+    
+    if (!flashcard.back || typeof flashcard.back !== 'string') {
+      errors.push(`Flashcard ${index}: Missing or invalid 'back' field`);
+    }
+    
+    // Check for empty strings
+    if (flashcard.front && flashcard.front.trim().length === 0) {
+      errors.push(`Flashcard ${index}: 'front' field cannot be empty`);
+    }
+    
+    if (flashcard.back && flashcard.back.trim().length === 0) {
+      errors.push(`Flashcard ${index}: 'back' field cannot be empty`);
+    }
+    
+    return errors;
+  }
+
+  /**
+   * Validate flashcards array structure
+   */
+  static validateFlashcardsStructure(data: any): ParseResult<FlashcardParsing[]> {
+    try {
+      const errors: string[] = [];
+      
+      if (!Array.isArray(data)) {
+        errors.push('Data must be an array of flashcards');
+        return {
+          success: false,
+          error: errors.join(', '),
+          data: data
+        };
+      }
+      
+      if (data.length === 0) {
+        errors.push('Flashcards array cannot be empty');
+      }
+      
+      data.forEach((flashcard: any, index: number) => {
+        const flashcardErrors = this.validateFlashcard(flashcard, index);
+        errors.push(...flashcardErrors);
+      });
+      
+      if (errors.length > 0) {
+        return {
+          success: false,
+          error: `Validation failed: ${errors.join(', ')}`,
+          data: data
+        };
+      }
+      
+      return {
+        success: true,
+        data: data as FlashcardParsing[]
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Validation error: ${error instanceof Error ? error.message : String(error)}`,
+        data: data
+      };
+    }
+  }
+
+  /**
+   * Convenience method specifically for flashcards
+   */
+  static parseFlashcards(response: any): ParseResult<FlashcardParsing[]> {
+    const parseResult = this.parseAIResponse<FlashcardParsing[]>(response);
+    
+    if (!parseResult.success) {
+      return parseResult;
+    }
+    
+    return this.validateFlashcardsStructure(parseResult.data);
   }
 
   /**
@@ -410,4 +497,6 @@ export class JsonParser {
 // Export convenience functions
 export const parseAIResponse = JsonParser.parseAIResponse;
 export const parseStudyNotes = JsonParser.parseStudyNotes;
+export const parseFlashcards = JsonParser.parseFlashcards;
 export const validateStudyNotesStructure = JsonParser.validateStudyNotesStructure;
+export const validateFlashcardsStructure = JsonParser.validateFlashcardsStructure;
