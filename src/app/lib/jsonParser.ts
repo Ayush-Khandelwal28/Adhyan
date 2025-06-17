@@ -1,19 +1,14 @@
-import { StudyNotesStructure, ParseResult, Flashcard  } from '@/app/lib/types'
-
-interface FlashcardParsing {
-  front: string;
-  back: string;
-}
+import { StudyNotesStructure, ParseResult, Flashcard, MCQQuestion, TrueFalseQuestion } from '@/app/lib/types'
 
 export class JsonParser {
-  /**
-   * Main method to parse and fix JSON from AI responses
-   */
+  
+   // Main method to parse and fix JSON from AI responses
+   
   static parseAIResponse<T = any>(response: any): ParseResult<T> {
     try {
       // Extract content string from various response formats
       const contentString = this.extractContentString(response);
-      
+
       if (!contentString) {
         return {
           success: false,
@@ -35,9 +30,9 @@ export class JsonParser {
     }
   }
 
-  /**
-   * Extract content string from various response formats
-   */
+  
+   // Extract content string from various response formats
+   
   private static extractContentString(response: any): string {
     if (typeof response === 'string') {
       return response;
@@ -46,8 +41,8 @@ export class JsonParser {
     if ("content" in response) {
       if (Array.isArray(response.content)) {
         interface ContentItem {
-            text?: string;
-            [key: string]: any;
+          text?: string;
+          [key: string]: any;
         }
       }
       return String(response.content);
@@ -64,9 +59,9 @@ export class JsonParser {
     return String(response);
   }
 
-  /**
-   * Parse JSON with progressive fixes
-   */
+  
+   // Parse JSON with progressive fixes
+   
   private static parseWithFixes<T>(content: string): ParseResult<T> {
     const fixes: string[] = [];
     let cleanedContent = content;
@@ -134,9 +129,9 @@ export class JsonParser {
     }
   }
 
-  /**
-   * Remove markdown code block formatting
-   */
+  
+   // Remove markdown code block formatting
+   
   private static removeMarkdownFormatting(content: string): string {
     return content
       // Remove ```json and ``` blocks
@@ -148,32 +143,32 @@ export class JsonParser {
       .trim();
   }
 
-  /**
-   * Extract JSON object from text that may contain extra content
-   */
+  
+   // Extract JSON object from text that may contain extra content
+   
   private static extractJsonFromText(content: string): string {
     // Look for JSON object boundaries
     const jsonStart = content.indexOf('{');
     const jsonEnd = content.lastIndexOf('}');
-    
+
     if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
       return content.substring(jsonStart, jsonEnd + 1);
     }
-    
+
     // Look for JSON array boundaries if no object found
     const arrayStart = content.indexOf('[');
     const arrayEnd = content.lastIndexOf(']');
-    
+
     if (arrayStart !== -1 && arrayEnd !== -1 && arrayEnd > arrayStart) {
       return content.substring(arrayStart, arrayEnd + 1);
     }
-    
+
     return content;
   }
 
-  /**
-   * Fix common JSON syntax errors
-   */
+  
+   // Fix common JSON syntax errors
+   
   private static fixCommonJsonErrors(content: string): string {
     return content
       // Fix trailing commas
@@ -193,9 +188,9 @@ export class JsonParser {
       .replace(/\t/g, '\\t');
   }
 
-  /**
-   * Aggressive JSON fixes as last resort
-   */
+  
+   // Aggressive JSON fixes as last resort
+   
   private static aggressiveJsonFix(content: string): string {
     try {
       // Remove any text before first { or [ and after last } or ]
@@ -203,10 +198,10 @@ export class JsonParser {
       const firstBracket = content.indexOf('[');
       const lastBrace = content.lastIndexOf('}');
       const lastBracket = content.lastIndexOf(']');
-      
+
       let start = -1;
       let end = -1;
-      
+
       // Determine if we're dealing with an object or array
       if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
         start = firstBrace;
@@ -215,35 +210,35 @@ export class JsonParser {
         start = firstBracket;
         end = lastBracket;
       }
-      
+
       if (start === -1 || end === -1) {
         throw new Error('No JSON structure found');
       }
-      
+
       let jsonContent = content.substring(start, end + 1);
-      
+
       // Balance braces
       jsonContent = this.balanceBraces(jsonContent);
-      
+
       // Fix array structures
       jsonContent = this.fixArrayStructures(jsonContent);
-      
+
       return jsonContent;
     } catch (error) {
       return content;
     }
   }
 
-  /**
-   * Balance braces and brackets
-   */
+  
+   // Balance braces and brackets
+   
   private static balanceBraces(content: string): string {
     const stack: string[] = [];
     let result = '';
-    
+
     for (let i = 0; i < content.length; i++) {
       const char = content[i];
-      
+
       if (char === '{' || char === '[') {
         stack.push(char);
         result += char;
@@ -258,19 +253,19 @@ export class JsonParser {
         result += char;
       }
     }
-    
+
     // Add missing closing braces
     while (stack.length > 0) {
       const open = stack.pop();
       result += open === '{' ? '}' : ']';
     }
-    
+
     return result;
   }
 
-  /**
-   * Fix array structures
-   */
+  
+   // Fix array structures
+   
   private static fixArrayStructures(content: string): string {
     return content
       // Ensure arrays have proper comma separation
@@ -289,44 +284,44 @@ export class JsonParser {
       .replace(/("subsections":\s*\[[\s\S]*?)"connections":\s*"([^"]+)"/g, '$1"connections": ["$2"]');
   }
 
-  /**
-   * Validate flashcard structure
-   */
+  
+   // Validate flashcard structure
+   
   private static validateFlashcard(flashcard: any, index: number): string[] {
     const errors: string[] = [];
-    
+
     if (!flashcard || typeof flashcard !== 'object') {
       errors.push(`Flashcard ${index}: Must be an object`);
       return errors;
     }
-    
+
     if (!flashcard.front || typeof flashcard.front !== 'string') {
       errors.push(`Flashcard ${index}: Missing or invalid 'front' field`);
     }
-    
+
     if (!flashcard.back || typeof flashcard.back !== 'string') {
       errors.push(`Flashcard ${index}: Missing or invalid 'back' field`);
     }
-    
+
     // Check for empty strings
     if (flashcard.front && flashcard.front.trim().length === 0) {
       errors.push(`Flashcard ${index}: 'front' field cannot be empty`);
     }
-    
+
     if (flashcard.back && flashcard.back.trim().length === 0) {
       errors.push(`Flashcard ${index}: 'back' field cannot be empty`);
     }
-    
+
     return errors;
   }
 
-  /**
-   * Validate flashcards array structure
-   */
-  static validateFlashcardsStructure(data: any): ParseResult<FlashcardParsing[]> {
+  
+   // Validate flashcards array structure
+   
+  static validateFlashcardsStructure(data: any): ParseResult<Flashcard[]> {
     try {
       const errors: string[] = [];
-      
+
       if (!Array.isArray(data)) {
         errors.push('Data must be an array of flashcards');
         return {
@@ -335,16 +330,16 @@ export class JsonParser {
           data: data
         };
       }
-      
+
       if (data.length === 0) {
         errors.push('Flashcards array cannot be empty');
       }
-      
+
       data.forEach((flashcard: any, index: number) => {
         const flashcardErrors = this.validateFlashcard(flashcard, index);
         errors.push(...flashcardErrors);
       });
-      
+
       if (errors.length > 0) {
         return {
           success: false,
@@ -352,10 +347,10 @@ export class JsonParser {
           data: data
         };
       }
-      
+
       return {
         success: true,
-        data: data as FlashcardParsing[]
+        data: data as Flashcard[]
       };
     } catch (error) {
       return {
@@ -366,58 +361,58 @@ export class JsonParser {
     }
   }
 
-  /**
-   * Convenience method specifically for flashcards
-   */
-  static parseFlashcards(response: any): ParseResult<FlashcardParsing[]> {
-    const parseResult = this.parseAIResponse<FlashcardParsing[]>(response);
-    
+  
+   // Convenience method specifically for flashcards
+   
+  static parseFlashcards(response: any): ParseResult<Flashcard[]> {
+    const parseResult = this.parseAIResponse<Flashcard[]>(response);
+
     if (!parseResult.success) {
       return parseResult;
     }
-    
+
     return this.validateFlashcardsStructure(parseResult.data);
   }
 
-  /**
-   * Validate subsection structure
-   */
+  
+   // Validate subsection structure
+   
   private static validateSubsection(subsection: any, sectionIndex: number, subsectionIndex: number): string[] {
     const errors: string[] = [];
-    
+
     if (!subsection.subheading || typeof subsection.subheading !== 'string') {
       errors.push(`Section ${sectionIndex}, Subsection ${subsectionIndex}: Missing or invalid subheading`);
     }
-    
+
     if (!subsection.points || !Array.isArray(subsection.points)) {
       errors.push(`Section ${sectionIndex}, Subsection ${subsectionIndex}: Missing or invalid points array`);
     }
-    
+
     // Optional arrays should be arrays if they exist
     ['definitions', 'examples', 'connections'].forEach(field => {
       if (subsection[field] !== undefined && !Array.isArray(subsection[field])) {
         errors.push(`Section ${sectionIndex}, Subsection ${subsectionIndex}: ${field} must be an array if present`);
       }
     });
-    
+
     return errors;
   }
 
-  /**
-   * Validate study notes structure specifically
-   */
+  
+   // Validate study notes structure specifically
+   
   static validateStudyNotesStructure(data: any): ParseResult<StudyNotesStructure> {
     try {
       const errors: string[] = [];
-      
+
       if (!data || typeof data !== 'object') {
         errors.push('Data must be an object');
       }
-      
+
       if (!data.title || typeof data.title !== 'string') {
         errors.push('Missing or invalid title');
       }
-      
+
       if (!data.sections || !Array.isArray(data.sections)) {
         errors.push('Missing or invalid sections array');
       } else {
@@ -428,14 +423,14 @@ export class JsonParser {
           if (!section.points || !Array.isArray(section.points)) {
             errors.push(`Section ${index}: Missing or invalid points array`);
           }
-          
+
           // Validate optional arrays
           ['definitions', 'examples', 'connections'].forEach(field => {
             if (section[field] !== undefined && !Array.isArray(section[field])) {
               errors.push(`Section ${index}: ${field} must be an array if present`);
             }
           });
-          
+
           // Validate subsections if they exist
           if (section.subsections !== undefined) {
             if (!Array.isArray(section.subsections)) {
@@ -449,16 +444,16 @@ export class JsonParser {
           }
         });
       }
-      
+
       if (!data.summary || typeof data.summary !== 'string') {
         errors.push('Missing or invalid summary');
       }
-      
+
       // Validate optional key_takeaways
       if (data.key_takeaways !== undefined && !Array.isArray(data.key_takeaways)) {
         errors.push('key_takeaways must be an array if present');
       }
-      
+
       if (errors.length > 0) {
         return {
           success: false,
@@ -466,7 +461,7 @@ export class JsonParser {
           data: data
         };
       }
-      
+
       return {
         success: true,
         data: data as StudyNotesStructure
@@ -480,17 +475,252 @@ export class JsonParser {
     }
   }
 
-  /**
-   * Convenience method specifically for study notes
-   */
+  
+   // Convenience method specifically for study notes
+   
   static parseStudyNotes(response: any): ParseResult<StudyNotesStructure> {
     const parseResult = this.parseAIResponse<StudyNotesStructure>(response);
-    
+
     if (!parseResult.success) {
       return parseResult;
     }
-    
+
     return this.validateStudyNotesStructure(parseResult.data);
+  }
+
+
+  
+   // Validate MCQ option structure
+   
+  private static validateMCQOption(option: any, questionIndex: number, optionIndex: number): string[] {
+    const errors: string[] = [];
+
+    if (!option || typeof option !== 'object') {
+      errors.push(`Question ${questionIndex}, Option ${optionIndex}: Must be an object`);
+      return errors;
+    }
+
+    if (!option.text || typeof option.text !== 'string') {
+      errors.push(`Question ${questionIndex}, Option ${optionIndex}: Missing or invalid 'text' field`);
+    }
+
+    if (typeof option.isCorrect !== 'boolean') {
+      errors.push(`Question ${questionIndex}, Option ${optionIndex}: Missing or invalid 'isCorrect' field (must be boolean)`);
+    }
+
+    if (option.text && option.text.trim().length === 0) {
+      errors.push(`Question ${questionIndex}, Option ${optionIndex}: 'text' field cannot be empty`);
+    }
+
+    return errors;
+  }
+
+  
+   // Validate MCQ question structure
+   
+  private static validateMCQQuestion(question: any, index: number): string[] {
+    const errors: string[] = [];
+
+    if (!question || typeof question !== 'object') {
+      errors.push(`Question ${index}: Must be an object`);
+      return errors;
+    }
+
+    if (!question.question || typeof question.question !== 'string') {
+      errors.push(`Question ${index}: Missing or invalid 'question' field`);
+    }
+
+    if (!question.options || !Array.isArray(question.options)) {
+      errors.push(`Question ${index}: Missing or invalid 'options' array`);
+    } else {
+      // Check for exactly 4 options
+      if (question.options.length !== 4) {
+        errors.push(`Question ${index}: Must have exactly 4 options, found ${question.options.length}`);
+      }
+
+      // Validate each option
+      question.options.forEach((option: any, optionIndex: number) => {
+        const optionErrors = this.validateMCQOption(option, index, optionIndex);
+        errors.push(...optionErrors);
+      });
+
+      // Check for exactly one correct answer
+      const correctOptions = question.options.filter((opt: any) => opt.isCorrect === true);
+      if (correctOptions.length !== 1) {
+        errors.push(`Question ${index}: Must have exactly 1 correct answer, found ${correctOptions.length}`);
+      }
+    }
+
+    // Validate optional fields
+    if (question.explanation !== undefined && typeof question.explanation !== 'string') {
+      errors.push(`Question ${index}: 'explanation' must be a string if provided`);
+    }
+
+    // Check for empty question text
+    if (question.question && question.question.trim().length === 0) {
+      errors.push(`Question ${index}: 'question' field cannot be empty`);
+    }
+
+    return errors;
+  }
+
+  
+   // Validate True/False question structure
+   
+  private static validateTrueFalseQuestion(question: any, index: number): string[] {
+    const errors: string[] = [];
+
+    if (!question || typeof question !== 'object') {
+      errors.push(`Question ${index}: Must be an object`);
+      return errors;
+    }
+
+    if (!question.statement || typeof question.statement !== 'string') {
+      errors.push(`Question ${index}: Missing or invalid 'statement' field`);
+    }
+
+    if (typeof question.isTrue !== 'boolean') {
+      errors.push(`Question ${index}: Missing or invalid 'isTrue' field (must be boolean)`);
+    }
+
+    // Validate optional fields
+    if (question.explanation !== undefined && typeof question.explanation !== 'string') {
+      errors.push(`Question ${index}: 'explanation' must be a string if provided`);
+    }
+
+    // Check for empty statement
+    if (question.statement && question.statement.trim().length === 0) {
+      errors.push(`Question ${index}: 'statement' field cannot be empty`);
+    }
+
+    return errors;
+  }
+
+  
+   // Validate MCQ quiz structure
+   
+  static validateMCQQuizStructure(data: any): ParseResult<MCQQuestion[]> {
+    try {
+      const errors: string[] = [];
+
+      if (!Array.isArray(data)) {
+        errors.push('Data must be an array of MCQ questions');
+        return {
+          success: false,
+          error: errors.join(', '),
+          data: data
+        };
+      }
+
+      if (data.length === 0) {
+        errors.push('MCQ questions array cannot be empty');
+      }
+
+      data.forEach((question: any, index: number) => {
+        const questionErrors = this.validateMCQQuestion(question, index);
+        errors.push(...questionErrors);
+      });
+
+      if (errors.length > 0) {
+        return {
+          success: false,
+          error: `Validation failed: ${errors.join(', ')}`,
+          data: data
+        };
+      }
+
+      return {
+        success: true,
+        data: data as MCQQuestion[]
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Validation error: ${error instanceof Error ? error.message : String(error)}`,
+        data: data
+      };
+    }
+  }
+
+  
+   // Validate True/False quiz structure
+   
+  static validateTrueFalseQuizStructure(data: any): ParseResult<TrueFalseQuestion[]> {
+    try {
+      const errors: string[] = [];
+
+      if (!Array.isArray(data)) {
+        errors.push('Data must be an array of True/False questions');
+        return {
+          success: false,
+          error: errors.join(', '),
+          data: data
+        };
+      }
+
+      if (data.length === 0) {
+        errors.push('True/False questions array cannot be empty');
+      }
+
+      // Check for balanced true/false distribution (warn if very unbalanced)
+      const trueQuestions = data.filter((q: any) => q.isTrue === true);
+      const falseQuestions = data.filter((q: any) => q.isTrue === false);
+      const ratio = trueQuestions.length / data.length;
+
+      if (ratio < 0.2 || ratio > 0.8) {
+        console.warn(`Unbalanced True/False distribution: ${trueQuestions.length} true, ${falseQuestions.length} false`);
+      }
+
+      data.forEach((question: any, index: number) => {
+        const questionErrors = this.validateTrueFalseQuestion(question, index);
+        errors.push(...questionErrors);
+      });
+
+      if (errors.length > 0) {
+        return {
+          success: false,
+          error: `Validation failed: ${errors.join(', ')}`,
+          data: data
+        };
+      }
+
+      return {
+        success: true,
+        data: data as TrueFalseQuestion[]
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Validation error: ${error instanceof Error ? error.message : String(error)}`,
+        data: data
+      };
+    }
+  }
+
+  
+   // Convenience method specifically for MCQ quizzes
+   
+  static parseMCQQuiz(response: any): ParseResult<MCQQuestion[]> {
+    const parseResult = this.parseAIResponse<MCQQuestion[]>(response);
+
+    if (!parseResult.success) {
+      return parseResult;
+    }
+
+    return this.validateMCQQuizStructure(parseResult.data);
+  }
+
+  
+   // Convenience method specifically for True/False quizzes
+   
+  static parseTrueFalseQuiz(response: any): ParseResult<TrueFalseQuestion[]> {
+    const parseResult = this.parseAIResponse<TrueFalseQuestion[]>(response);
+
+    if (!parseResult.success) {
+      return parseResult;
+    }
+
+    return this.validateTrueFalseQuizStructure(parseResult.data);
   }
 }
 
@@ -500,3 +730,5 @@ export const parseStudyNotes = JsonParser.parseStudyNotes;
 export const parseFlashcards = JsonParser.parseFlashcards;
 export const validateStudyNotesStructure = JsonParser.validateStudyNotesStructure;
 export const validateFlashcardsStructure = JsonParser.validateFlashcardsStructure;
+export const parseMCQQuiz = JsonParser.parseMCQQuiz;
+export const parseTrueFalseQuiz = JsonParser.parseTrueFalseQuiz;

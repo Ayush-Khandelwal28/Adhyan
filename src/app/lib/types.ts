@@ -80,3 +80,61 @@ export interface ApplicationContentCollection {
         subsectionConnections: { section: string; subsection: string; count: number }[];
     };
 }
+
+export interface QuizContentConfig {
+  includeSubsections?: boolean;
+  minPointsPerSection?: number;
+}
+
+export interface ExtractedQuizContent {
+  title: string;
+  summary: string;
+  totalSections: number;
+  extractedSections: QuizSection[];
+  metadata: {
+    totalPoints: number;
+    totalDefinitions: number;
+    totalExamples: number;
+    contentTypes: string[];
+  };
+}
+
+export interface QuizSection {
+  heading: string;
+  level: 'main' | 'sub';
+  parentHeading?: string;
+  points: string[];
+  definitions: string[];
+  examples: string[];
+  score: number; 
+}
+
+export interface MCQOption {
+  text: string;
+  isCorrect: boolean;
+}
+
+export interface MCQQuestion {
+  type: 'MCQ';
+  question: string;
+  options: MCQOption[];
+  explanation?: string;
+}
+
+export interface TrueFalseQuestion {
+  type: 'TRUE_FALSE';
+  statement: string;
+  isTrue: boolean;
+  explanation?: string;
+}
+
+
+export interface Quiz {
+    title: string;
+    questions: QuizQuestion[];
+    totalQuestions: number;
+}
+
+export type QuizQuestion = MCQQuestion | TrueFalseQuestion;
+
+export type QuestionType = 'MCQ' | 'TRUE_FALSE';
