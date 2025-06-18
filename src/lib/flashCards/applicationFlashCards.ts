@@ -1,4 +1,4 @@
-import { StudyNotesStructure, ApplicationContentCollection, ApplicationContentItem } from '@/app/lib/types';
+import { StudyNotesStructure, ApplicationContentCollection, ApplicationContentItem } from '@/lib/types';
 import generateFlashcards from '../langchain/generateFlashCards';
 
 

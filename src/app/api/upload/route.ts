@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import extractPdfText from '@/app/lib/contentUpload/parsePDF';
-import { validateYtLink, getContentFromYoutube } from '@/app/lib/contentUpload/ytUtils';
-import { prepareTextForChunking } from '@/app/lib/contentUpload/processContent';
-import {getTextStatistics} from '@/app/lib/contentUpload/processContent';
-import { generateStructuredNotes } from '@/app/lib/langchain/uploadContent';
-import { analyzeFlashcardEligibility } from '@/app/lib/flashCards/flashCardsCalculator';
-import { StudyNotesStructure } from '@/app/lib/types';
+import extractPdfText from '@/lib/contentUpload/parsePDF';
+import { validateYtLink, getContentFromYoutube } from '@/lib/contentUpload/ytUtils';
+import { prepareTextForChunking } from '@/lib/contentUpload/processContent';
+import {getTextStatistics} from '@/lib/contentUpload/processContent';
+import { generateStructuredNotes } from '@/lib/langchain/uploadContent';
+import { analyzeFlashcardEligibility } from '@/lib/flashCards/flashCardsCalculator';
+import { StudyNotesStructure } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
     try {

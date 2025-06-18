@@ -1,4 +1,4 @@
-import { StudyNotesStructure, FlashcardAvailability } from '@/app/lib/types';
+import { StudyNotesStructure, FlashcardAvailability } from '@/lib/types';
 
 export function analyzeFlashcardEligibility(notes: StudyNotesStructure): {
     availability: FlashcardAvailability;

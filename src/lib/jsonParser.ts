@@ -1,4 +1,4 @@
-import { StudyNotesStructure, ParseResult, Flashcard, MCQQuestion, TrueFalseQuestion } from '@/app/lib/types'
+import { StudyNotesStructure, ParseResult, Flashcard, MCQQuestion, TrueFalseQuestion } from '@/lib/types'
 
 export class JsonParser {
   

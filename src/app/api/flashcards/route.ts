@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import generateDefinitionFlashcards from '@/app/lib/flashCards/definitionFlashCards';
-import generateRecallFlashcards from '@/app/lib/flashCards/recallFlashCards';
-import getApplicationFlashcards from '@/app/lib/flashCards/applicationFlashCards';
-import content from '@/app/lib/mockdata/ml1.json';
+import generateDefinitionFlashcards from '@/lib/flashCards/definitionFlashCards';
+import generateRecallFlashcards from '@/lib/flashCards/recallFlashCards';
+import getApplicationFlashcards from '@/lib/flashCards/applicationFlashCards';
+import content from '@/lib/mockdata/ml1.json';
 
 export async function POST(request: Request) {
     try {

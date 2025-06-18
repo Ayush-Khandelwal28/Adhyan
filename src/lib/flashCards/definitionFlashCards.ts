@@ -1,4 +1,4 @@
-import { StudyNotesStructure, Flashcard } from '@/app/lib/types';
+import { StudyNotesStructure, Flashcard } from '@/lib/types';
 
 export default function generateDefinitionFlashcards(notes: StudyNotesStructure) {
     const flashcards: Flashcard[] = [];

@@ -1,6 +1,6 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-import { JsonParser } from "@/app/lib/jsonParser"
+import { JsonParser } from "@/lib/jsonParser"
 import { StudyNotesStructure } from "../types";
 
 const llm = new ChatGoogleGenerativeAI({

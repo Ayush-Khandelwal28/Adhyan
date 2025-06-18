@@ -1,7 +1,7 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-import { JsonParser } from "@/app/lib/jsonParser"
-import { RecallContentItem, ApplicationContentItem, Flashcard } from "@/app/lib/types";
+import { JsonParser } from "@/lib/jsonParser"
+import { RecallContentItem, ApplicationContentItem, Flashcard } from "@/lib/types";
 
 
 type FlashcardType = 'recall' | 'application';

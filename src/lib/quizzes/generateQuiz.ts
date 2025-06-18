@@ -1,7 +1,7 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { getSystemPrompt, getHumanPrompt } from "@/app/lib/quizzes/prompts";
-import { JsonParser } from "@/app/lib/jsonParser";
-import { ExtractedQuizContent, Quiz, QuestionType, QuizQuestion, MCQOption } from "@/app/lib/types";
+import { getSystemPrompt, getHumanPrompt } from "@/lib/quizzes/prompts";
+import { JsonParser } from "@/lib/jsonParser";
+import { ExtractedQuizContent, Quiz, QuestionType, QuizQuestion, MCQOption } from "@/lib/types";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 
 const llm = new ChatGoogleGenerativeAI({

@@ -1,4 +1,4 @@
-import { StudyNotesStructure, RecallContentItem, RecallContentCollection } from '@/app/lib/types';
+import { StudyNotesStructure, RecallContentItem, RecallContentCollection } from '@/lib/types';
 import generateFlashcards from '../langchain/generateFlashCards';
 
 

@@ -1,5 +1,5 @@
-import { StudyNotesStructure, StudyNotesSection, StudyNotesSubsection } from '@/app/lib/types';
-import { QuizContentConfig, ExtractedQuizContent, QuizSection } from '@/app/lib/types';
+import { StudyNotesStructure, StudyNotesSection, StudyNotesSubsection } from '@/lib/types';
+import { QuizContentConfig, ExtractedQuizContent, QuizSection } from '@/lib/types';
 
 export class QuizContentExtractor {
 

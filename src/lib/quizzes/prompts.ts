@@ -1,5 +1,5 @@
 
-import {QuestionType, ExtractedQuizContent} from "@/app/lib/types";
+import {QuestionType, ExtractedQuizContent} from "@/lib/types";
 
 export function getSystemPrompt(type: QuestionType, includeExplanations: boolean): string {
   const basePrompt = type === 'MCQ'

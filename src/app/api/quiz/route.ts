@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { QuizContentExtractor } from '@/app/lib/quizzes/extractContentForQuizzes';
-import { QuizContentConfig } from '@/app/lib/types';
-import mlContent from '@/app/lib/mockdata/ml1.json';
-import generateQuiz from '@/app/lib/quizzes/generateQuiz';
+import { QuizContentExtractor } from '@/lib/quizzes/extractContentForQuizzes';
+import { QuizContentConfig } from '@/lib/types';
+import mlContent from '@/lib/mockdata/ml1.json';
+import generateQuiz from '@/lib/quizzes/generateQuiz';
 
 export async function POST(request: Request) {
     try {
