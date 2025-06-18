@@ -1,3 +1,5 @@
+import NextAuth from "next-auth";
+
 export interface StudyNotesStructure {
   title: string;
   sections: StudyNotesSection[];
@@ -43,42 +45,42 @@ export interface Flashcard {
 }
 
 export interface RecallContentItem {
-    content: string;
-    source: {
-        section: string;
-        subsection?: string;
-        type: 'point' | 'key_takeaway';
-        index: number;
-    };
-    context?: string; 
+  content: string;
+  source: {
+    section: string;
+    subsection?: string;
+    type: 'point' | 'key_takeaway';
+    index: number;
+  };
+  context?: string;
 }
 
 export interface RecallContentCollection {
-    items: RecallContentItem[];
-    totalCount: number;
+  items: RecallContentItem[];
+  totalCount: number;
 }
 
 export interface ApplicationContentItem {
-    content: string;
-    source: {
-        section: string;
-        subsection?: string;
-        type: 'example' | 'connection';
-        index: number;
-    };
-    context?: string;
-    relatedConcepts?: string[];
+  content: string;
+  source: {
+    section: string;
+    subsection?: string;
+    type: 'example' | 'connection';
+    index: number;
+  };
+  context?: string;
+  relatedConcepts?: string[];
 }
 
 export interface ApplicationContentCollection {
-    items: ApplicationContentItem[];
-    totalCount: number;
-    breakdown: {
-        sectionExamples: { section: string; count: number }[];
-        sectionConnections: { section: string; count: number }[];
-        subsectionExamples: { section: string; subsection: string; count: number }[];
-        subsectionConnections: { section: string; subsection: string; count: number }[];
-    };
+  items: ApplicationContentItem[];
+  totalCount: number;
+  breakdown: {
+    sectionExamples: { section: string; count: number }[];
+    sectionConnections: { section: string; count: number }[];
+    subsectionExamples: { section: string; subsection: string; count: number }[];
+    subsectionConnections: { section: string; subsection: string; count: number }[];
+  };
 }
 
 export interface QuizContentConfig {
@@ -106,7 +108,7 @@ export interface QuizSection {
   points: string[];
   definitions: string[];
   examples: string[];
-  score: number; 
+  score: number;
 }
 
 export interface MCQOption {
@@ -130,11 +132,33 @@ export interface TrueFalseQuestion {
 
 
 export interface Quiz {
-    title: string;
-    questions: QuizQuestion[];
-    totalQuestions: number;
+  title: string;
+  questions: QuizQuestion[];
+  totalQuestions: number;
 }
 
 export type QuizQuestion = MCQQuestion | TrueFalseQuestion;
 
 export type QuestionType = 'MCQ' | 'TRUE_FALSE';
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    };
+  }
+
+  interface User {
+    id: string;
+    password?: string | null;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    userId?: string;
+  }
+}
