@@ -162,3 +162,11 @@ declare module "next-auth/jwt" {
     userId?: string;
   }
 }
+
+export interface StudyPack {
+  id: number;
+  title: string;
+  createdAt: string;
+  lastAccessed: string;
+  type: string;
+}

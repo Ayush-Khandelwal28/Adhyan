@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import extractPdfText from '@/lib/contentUpload/parsePDF';
 import { validateYtLink, getContentFromYoutube } from '@/lib/contentUpload/ytUtils';
 import { prepareTextForChunking } from '@/lib/contentUpload/processContent';
-import {getTextStatistics} from '@/lib/contentUpload/processContent';
+import { getTextStatistics } from '@/lib/contentUpload/processContent';
 import { generateStructuredNotes } from '@/lib/langchain/uploadContent';
 import { analyzeFlashcardEligibility } from '@/lib/flashCards/flashCardsCalculator';
 import { StudyNotesStructure } from '@/lib/types';
+import prisma from "@/lib/prisma";
+import { getCurrentUserId } from "@/lib/auth/getCurrentUser";
 
 export async function POST(request: NextRequest) {
     try {
@@ -22,7 +24,7 @@ export async function POST(request: NextRequest) {
 
         if (contentType === 'text') {
             content = text
-        } else if (contentType === 'pdf') {
+        } else if (contentType === 'file') {
             if (!file || !(file instanceof Blob)) {
                 console.log("No file received");
                 return NextResponse.json({ error: "No file received." }, { status: 400 });
@@ -40,7 +42,7 @@ export async function POST(request: NextRequest) {
         }
 
         if (!content || typeof content !== 'string') {
-            return NextResponse.json({ error: 'Error processing content' }, { status: 400 });
+            return NextResponse.json({ error: 'Error creating content' }, { status: 400 });
         }
 
         const stats = getTextStatistics(content);
@@ -59,12 +61,34 @@ export async function POST(request: NextRequest) {
         console.log('creating notes for content:');
 
         const notes = await generateStructuredNotes(content);
-        
+
         console.log('Generated notes:', notes);
 
-        const { availability, eligibleTypes } = analyzeFlashcardEligibility(notes as StudyNotesStructure);
+        const availability = analyzeFlashcardEligibility(notes as StudyNotesStructure);
 
-        return NextResponse.json({ message: 'Upload successful', data: notes , flashcardAvailability: availability, eligibleTypes }, { status: 200 });
+        const userId = await getCurrentUserId();
+        if (!userId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const notesUpload = await prisma.studyPack.create({
+            data: {
+                userId,
+                title: notes.title,
+                sourceType: contentType as string,
+                sourceUrl: contentType === 'link' ? link as string : null,
+                notesJson: JSON.stringify(notes),
+                flashcardAvailabilityJson: JSON.stringify(availability),
+            }
+        });
+
+        console.log('Study Pack created:', notesUpload);
+
+        if(!notesUpload) {
+            return NextResponse.json({ error: 'Failed to create study pack' }, { status: 500 });
+        }
+
+        return NextResponse.json({ message: 'Upload successful', data: notes, flashcardAvailability: availability }, { status: 200 });
     } catch (error) {
         return NextResponse.json(
             { error: 'Failed to upload Content' },

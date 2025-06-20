@@ -2,22 +2,10 @@ import { StudyNotesStructure, FlashcardAvailability } from '@/lib/types';
 
 export function analyzeFlashcardEligibility(notes: StudyNotesStructure): {
     availability: FlashcardAvailability;
-    eligibleTypes: { type: string; count: number }[];
-    breakdown: {
-        definitions: { section: string; count: number }[];
-        recall: { section: string; count: number }[];
-        application: { section: string; count: number }[];
-    };
 } {
     let definitionCount = 0;
     let recallCount = 0;
     let applicationCount = 0;
-
-    const breakdown = {
-        definitions: [] as { section: string; count: number }[],
-        recall: [] as { section: string; count: number }[],
-        application: [] as { section: string; count: number }[],
-    };
 
     // Process main sections
     for (const section of notes.sections) {
@@ -67,23 +55,11 @@ export function analyzeFlashcardEligibility(notes: StudyNotesStructure): {
                 applicationCount += subAppItems;
             }
         }
-
-        // Record breakdown
-        if (sectionDefinitions > 0) {
-            breakdown.definitions.push({ section: section.heading, count: sectionDefinitions });
-        }
-        if (sectionRecall > 0) {
-            breakdown.recall.push({ section: section.heading, count: sectionRecall });
-        }
-        if (sectionApplication > 0) {
-            breakdown.application.push({ section: section.heading, count: sectionApplication });
-        }
     }
 
     // Add key takeaways to recall (these are high-value items)
     if (notes.key_takeaways?.length) {
         recallCount += notes.key_takeaways.length;
-        breakdown.recall.push({ section: 'Key Takeaways', count: notes.key_takeaways.length });
     }
 
     const available = {
@@ -92,14 +68,7 @@ export function analyzeFlashcardEligibility(notes: StudyNotesStructure): {
         application: applicationCount,
     };
 
-    const eligibleTypes: { type: string; count: number }[] = [];
-    eligibleTypes.push({ type: 'definition', count: definitionCount });
-    eligibleTypes.push({ type: 'recall', count: recallCount });
-    eligibleTypes.push({ type: 'application', count: applicationCount });
-
     return {
         availability: available,
-        eligibleTypes,
-        breakdown,
     };
 }
