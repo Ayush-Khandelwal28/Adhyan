@@ -170,3 +170,21 @@ export interface StudyPack {
   lastAccessed: string;
   type: string;
 }
+
+export interface MindMapNodeData {
+  label: string;
+  content: string;
+  type: 'root' | 'section' | 'subsection' | 'takeaway';
+  isExpanded: boolean;
+  childrenIds: string[];
+  parentId?: string;
+  originalData?: any;
+  pointsCount?: number;
+  definitionsCount?: number;
+  examplesCount?: number;
+  nodeKey: string;
+  hasExpandableChildren: boolean;
+}
+
+export type MindMapNode = import('reactflow').Node<MindMapNodeData>;
+export type MindMapEdge = import('reactflow').Edge;
