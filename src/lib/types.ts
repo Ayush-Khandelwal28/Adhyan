@@ -188,3 +188,28 @@ export interface MindMapNodeData {
 
 export type MindMapNode = import('reactflow').Node<MindMapNodeData>;
 export type MindMapEdge = import('reactflow').Edge;
+
+export interface FlashcardGroup {
+  type: 'definition' | 'recall' | 'application';
+  flashcards: Flashcard[];
+}
+
+export interface FlashcardData {
+  message: string;
+  data: FlashcardGroup[];
+}
+
+export interface StudySession {
+  totalCards: number;
+  currentIndex: number;
+  correctCount: number;
+  wrongCount: number;
+  completedCards: Set<number>;
+  needReviewCards: Set<number>;
+}
+
+export interface FilterState {
+  definitions: boolean;
+  recall: boolean;
+  application: boolean;
+}
