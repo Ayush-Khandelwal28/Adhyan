@@ -2,16 +2,16 @@ import React, { useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, FileText, Lightbulb, Link, Star } from 'lucide-react';
-import { StudyPackData, SearchResult } from '@/lib/types';
+import { StudyNotesStructure } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface NotesContentProps {
-  studyPack: StudyPackData;
+  studyNotes: StudyNotesStructure;
   onSectionInView: (sectionId: string) => void;
 }
 
 export const NotesContent: React.FC<NotesContentProps> = ({
-  studyPack,
+  studyNotes,
   onSectionInView
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -96,7 +96,7 @@ export const NotesContent: React.FC<NotesContentProps> = ({
   return (
     <div ref={contentRef} className="space-y-8">
       {/* Sections */}
-      {studyPack.sections.map((section, sectionIndex) => (
+      {studyNotes.sections.map((section, sectionIndex) => (
         <section
           key={sectionIndex}
           id={`section-${sectionIndex}`}
@@ -222,7 +222,7 @@ export const NotesContent: React.FC<NotesContentProps> = ({
       ))}
 
       {/* Key Takeaways */}
-      {studyPack.key_takeaways && studyPack.key_takeaways.length > 0 && (
+      {studyNotes.key_takeaways && studyNotes.key_takeaways.length > 0 && (
         <section
           id="key-takeaways"
           ref={(el) => {
@@ -237,7 +237,7 @@ export const NotesContent: React.FC<NotesContentProps> = ({
           <Card className="bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
             <CardContent className="p-6">
               <ul className="space-y-3">
-                {studyPack.key_takeaways.map((takeaway, index) => (
+                {studyNotes.key_takeaways.map((takeaway, index) => (
                   <li key={index} className="flex items-start space-x-3">
                     <Badge variant="secondary" className="mt-1 flex-shrink-0">
                       {index + 1}
@@ -268,7 +268,7 @@ export const NotesContent: React.FC<NotesContentProps> = ({
         <Card className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
           <CardContent className="p-6">
             <p className="text-green-900 dark:text-green-100 leading-relaxed text-lg">
-              {studyPack.summary}
+              {studyNotes.summary}
             </p>
           </CardContent>
         </Card>

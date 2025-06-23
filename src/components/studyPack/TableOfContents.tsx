@@ -2,18 +2,18 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronDown, ChevronRight, List, Menu, X } from 'lucide-react';
-import { StudyPackData, TableOfContentsItem } from '@/lib/types';
+import { StudyNotesStructure, StudyPackData, TableOfContentsItem } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface TableOfContentsProps {
-  studyPack: StudyPackData;
+  studyNotes: StudyNotesStructure;
   activeSection: string;
   onSectionClick: (sectionId: string) => void;
   isMobile?: boolean;
 }
 
 export const TableOfContents: React.FC<TableOfContentsProps> = ({
-  studyPack,
+  studyNotes,
   activeSection,
   onSectionClick,
   isMobile = false
@@ -24,8 +24,8 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({
   // Generate table of contents structure
   const generateTOC = (): TableOfContentsItem[] => {
     const toc: TableOfContentsItem[] = [];
-    
-    studyPack.sections.forEach((section, sectionIndex) => {
+
+    studyNotes.sections.forEach((section, sectionIndex) => {
       const sectionId = `section-${sectionIndex}`;
       const tocItem: TableOfContentsItem = {
         id: sectionId,
@@ -50,7 +50,7 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({
     });
 
     // Add key takeaways and summary
-    if (studyPack.key_takeaways && studyPack.key_takeaways.length > 0) {
+    if (studyNotes.key_takeaways && studyNotes.key_takeaways.length > 0) {
       toc.push({
         id: 'key-takeaways',
         title: 'Key Takeaways',

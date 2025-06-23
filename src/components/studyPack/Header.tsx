@@ -55,16 +55,12 @@ export const StudyPackHeader: React.FC<StudyPackHeaderProps> = ({ studyPack }) =
                 <span>Created {formatDate(studyPack.metadata.createdAt)}</span>
               </div>
             )}
-            {studyPack.metadata.lastModified && (
+            {studyPack.metadata.lastAccessed && (
               <div className="flex items-center space-x-1">
                 <Clock className="w-4 h-4" />
-                <span>Modified {formatDate(studyPack.metadata.lastModified)}</span>
+                <span>Modified {formatDate(studyPack.metadata.lastAccessed)}</span>
               </div>
             )}
-            <div className="flex items-center space-x-1">
-              <FileText className="w-4 h-4" />
-              <span>{studyPack.sections.length} sections</span>
-            </div>
           </div>
         )}
       </div>

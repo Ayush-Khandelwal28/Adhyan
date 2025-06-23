@@ -7,13 +7,19 @@ import { formatDate, formatLastAccessed } from '@/lib/utils';
 import { CONTENT_TYPES, STUDY_PACK_ACTIONS } from '@/lib/constants';
 import { ContentTypeIcon } from '@/components/ContentTypeIcon';
 import { isValidContentType } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 export function StudyPackCard({ pack }: { pack: StudyPack }) {
+    const router = useRouter();
     const type = isValidContentType(pack.type) ? pack.type : 'TEXT';
     const contentType = CONTENT_TYPES[type];
 
+    const handleClick = () => {
+        router.push(`/studypack/${pack.id}`);
+    };
+
     return (
-        <Card className={`hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm group flex flex-col h-full}`}>
+        <Card className={`hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm group flex flex-col h-full}`} onClick={handleClick}>
             <CardHeader className="flex-grow">
                 <div className="flex items-start justify-between mb-2">
                     <Badge

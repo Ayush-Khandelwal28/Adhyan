@@ -8,9 +8,15 @@ import { formatLastAccessed, getTypeColor } from '@/lib/utils';
 import { CONTENT_TYPES } from '@/lib/constants';
 import { ContentTypeIcon } from '../ContentTypeIcon';
 import { isValidContentType } from '@/lib/utils';
-
+import { useRouter } from 'next/navigation';
 
 export function RecentlyAccessed({ recentlyAccessed }: { recentlyAccessed: StudyPack[] }) {
+
+  const router = useRouter();
+  const openStudyPack = (id: string) => {
+    router.push(`/studypack/${id}`);
+  };
+
   return (
     <div className="mb-8">
       <div className="mb-8">
@@ -24,7 +30,7 @@ export function RecentlyAccessed({ recentlyAccessed }: { recentlyAccessed: Study
             const contentType = CONTENT_TYPES[type];
 
             return (
-              <Card key={pack.id} className="hover:shadow-lg transition-all duration-200 hover:scale-105 cursor-pointer bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <Card key={pack.id} className="hover:shadow-lg transition-all duration-200 hover:scale-105 cursor-pointer bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm" onClick={() => openStudyPack(pack.id)}>
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <Badge

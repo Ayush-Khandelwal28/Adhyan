@@ -164,7 +164,7 @@ declare module "next-auth/jwt" {
 }
 
 export interface StudyPack {
-  id: number;
+  id: string;
   title: string;
   createdAt: string;
   lastAccessed: string;
@@ -238,15 +238,10 @@ export type QuizPhase = 'taking' | 'results' | 'review';
 
 export interface StudyPackData {
   title: string;
-  sections: StudyNotesSection[];
-  key_takeaways?: string[];
-  summary: string;
+  notesJson: StudyNotesStructure;
   metadata?: {
     createdAt?: string;
-    lastModified?: string;
-    totalNotes?: number;
-    totalFlashcards?: number;
-    totalQuizzes?: number;
+    lastAccessed?: string;
   };
 }
 
