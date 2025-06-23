@@ -235,3 +235,32 @@ export interface QuizState {
 }
 
 export type QuizPhase = 'taking' | 'results' | 'review';
+
+export interface StudyPackData {
+  title: string;
+  sections: StudyNotesSection[];
+  key_takeaways?: string[];
+  summary: string;
+  metadata?: {
+    createdAt?: string;
+    lastModified?: string;
+    totalNotes?: number;
+    totalFlashcards?: number;
+    totalQuizzes?: number;
+  };
+}
+
+export interface TableOfContentsItem {
+  id: string;
+  title: string;
+  level: number;
+  children?: TableOfContentsItem[];
+}
+
+export interface SearchResult {
+  sectionIndex: number;
+  subsectionIndex?: number;
+  contentType: 'heading' | 'point' | 'definition' | 'example' | 'connection' | 'takeaway' | 'summary';
+  content: string;
+  context: string;
+}
