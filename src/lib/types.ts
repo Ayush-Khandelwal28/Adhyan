@@ -213,3 +213,25 @@ export interface FilterState {
   recall: boolean;
   application: boolean;
 }
+
+export interface QuizResponse {
+  message: string;
+  data: Quiz;
+}
+
+export interface UserAnswer {
+  questionIndex: number;
+  answer: boolean | number; 
+  isCorrect: boolean;
+}
+
+export interface QuizState {
+  currentQuestionIndex: number;
+  userAnswers: Map<number, UserAnswer>;
+  isCompleted: boolean;
+  showResults: boolean;
+  showReview: boolean;
+  score: number;
+}
+
+export type QuizPhase = 'taking' | 'results' | 'review';
