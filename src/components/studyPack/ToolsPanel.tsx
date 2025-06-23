@@ -3,17 +3,17 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Brain, HelpCircle, BookOpen, Printer, Type, ArrowUp } from 'lucide-react';
-import { StudyPackData } from '@/lib/types';
+import { useRouter } from 'next/navigation';
 
 interface StudyToolsPanelProps {
-  studyPack: StudyPackData;
+  studyPackId: string;
   fontSize: number;
   onFontSizeChange: (size: number) => void;
   onScrollToTop: () => void;
 }
 
 export const StudyToolsPanel: React.FC<StudyToolsPanelProps> = ({
-  studyPack,
+  studyPackId,
   fontSize,
   onFontSizeChange,
   onScrollToTop
@@ -28,6 +28,45 @@ export const StudyToolsPanel: React.FC<StudyToolsPanelProps> = ({
     { label: 'A+', value: 18 }
   ];
 
+  const router = useRouter();
+
+  const handleToolClick = (tool: string) => {
+    switch (tool) {
+      case 'mindMap':
+        router.push(`/studypack/${studyPackId}/mind-map`);
+        break;
+      case 'quiz':
+        router.push(`/studypack/${studyPackId}/quiz`);
+        break;
+      case 'flashcards':
+        router.push(`/studypack/${studyPackId}/flashcards`);
+        break;
+      default:
+        break;
+    }
+  }
+
+  const tools = [
+    {
+      tool: 'mindMap',
+      label: 'Mind Map',
+      icon: BookOpen,
+      gradient: 'from-blue-500 to-blue-600'
+    },
+    {
+      tool: 'quiz',
+      label: 'Quiz',
+      icon: HelpCircle,
+      gradient: 'from-green-500 to-green-600'
+    },
+    {
+      tool: 'flashcards',
+      label: 'Flashcards',
+      icon: Brain,
+      gradient: 'from-purple-500 to-purple-600'
+    }
+  ];
+
   return (
     <div className="space-y-6">
       {/* Study Tools */}
@@ -40,36 +79,18 @@ export const StudyToolsPanel: React.FC<StudyToolsPanelProps> = ({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-3 gap-4">
-            <Link href="/mindmap" className="block">
-              <Button className="w-full h-16 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white">
-                <div className="flex flex-col items-center space-y-1">
-                  <Brain className="w-6 h-6" />
-                  <span className="font-semibold">Mind Map</span>
-                </div>
+            {tools.map(({ tool, label, icon: Icon, gradient }) => (
+              <Button 
+              key={tool}
+              className={`w-full h-16 bg-gradient-to-r ${gradient} text-white`}
+              onClick={() => handleToolClick(tool)}
+              >
+              <div className="flex flex-col items-center space-y-1">
+                <Icon className="w-6 h-6" />
+                <span className="font-semibold">{label}</span>
+              </div>
               </Button>
-            </Link>
-
-            <Link href="/quiz" className="block">
-              <Button className="w-full h-16 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white">
-                <div className="flex flex-col items-center space-y-1">
-                  <HelpCircle className="w-6 h-6" />
-                  <div className="flex items-center space-x-2">
-                    <span className="font-semibold">Quiz</span>
-                  </div>
-                </div>
-              </Button>
-            </Link>
-
-            <Link href="/flashcard" className="block">
-              <Button className="w-full h-16 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white">
-                <div className="flex flex-col items-center space-y-1">
-                  <BookOpen className="w-6 h-6" />
-                  <div className="flex items-center space-x-2">
-                    <span className="font-semibold">Flashcards</span>
-                  </div>
-                </div>
-              </Button>
-            </Link>
+            ))}
           </div>
         </CardContent>
       </Card>

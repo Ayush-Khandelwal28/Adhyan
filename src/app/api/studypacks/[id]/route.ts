@@ -6,13 +6,15 @@ import { StudyPackData, StudyNotesStructure } from '@/lib/types';
 export async function GET(request: Request, { params }: { params: { id: string } }) {
     const userId = await getCurrentUserId();
 
+    const { id } = await params;
+
     if (!userId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const studyPack = await prisma.studyPack.findFirst({
         where: {
-            id: params.id,
+            id,
             userId,
         },
         select: {

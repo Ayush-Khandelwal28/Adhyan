@@ -127,7 +127,7 @@ export default function StudyPackPage({ params }: { params: Promise<{ id: string
               {/* Study Tools Panel */}
               <div className=" top-24">
                 <StudyToolsPanel
-                  studyPack={studyPack}
+                  studyPackId={id}
                   fontSize={fontSize}
                   onFontSizeChange={setFontSize}
                   onScrollToTop={handleScrollToTop}

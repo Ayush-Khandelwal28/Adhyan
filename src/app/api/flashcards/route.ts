@@ -1,65 +1,64 @@
 import { NextResponse } from 'next/server';
-import generateDefinitionFlashcards from '@/lib/flashCards/definitionFlashCards';
-import generateRecallFlashcards from '@/lib/flashCards/recallFlashCards';
-import getApplicationFlashcards from '@/lib/flashCards/applicationFlashCards';
-import content from '@/lib/mockdata/ml1.json';
+import prisma from '@/lib/prisma';
+import { getCurrentUserId } from '@/lib/auth/getCurrentUser';
+import { FlashcardAvailability } from '@/lib/types';
 
-export async function POST(request: Request) {
-    try {
-        const data = await request.json();
+export async function GET(request: Request) {
+    const userId = await getCurrentUserId();
 
-        console.log('Received data:', data);
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
 
-        const mlContent = content.data
-
-        const { definition, recall, application }: { definition: boolean; recall: boolean; application: boolean } = data;
-
-        if (definition === undefined || recall === undefined || application === undefined) {
-            return NextResponse.json({ error: 'Missing flashcard type flags' }, { status: 400 });
-        }
-
-        if (typeof definition !== 'boolean' || typeof recall !== 'boolean' || typeof application !== 'boolean') {
-            return NextResponse.json({ error: 'Invalid flashcard data' }, { status: 400 });
-        }
-
-        if (!definition && !recall && !application) {
-            return NextResponse.json({ error: 'At least one flashcard type must be true' }, { status: 400 });
-        }
-
-        console.log('checks passed');
-
-        const flashcards = [];
-
-        if (definition) {
-            console.log('Generating definition flashcards');
-            const definitionFlashcards = generateDefinitionFlashcards(mlContent);
-            if (!definitionFlashcards || definitionFlashcards.length === 0) {
-                return NextResponse.json({ error: 'No definition flashcards created' }, { status: 400 });
-            }
-            flashcards.push({ type: 'definition', flashcards: definitionFlashcards });
-        }
-
-        if (recall) {
-            const recallFlashcards = await generateRecallFlashcards(mlContent);
-            if (!recallFlashcards || recallFlashcards.length === 0) {
-                return NextResponse.json({ error: 'No recall flashcards created' }, { status: 400 });
-            }
-            flashcards.push({ type: 'recall', flashcards: recallFlashcards });
-        }
-
-        if (application) {
-            const applicationFlashcards = await getApplicationFlashcards(mlContent);
-            if (!applicationFlashcards || applicationFlashcards.length === 0) {
-                return NextResponse.json({ error: 'No application flashcards created' }, { status: 400 });
-            }
-            flashcards.push({ type: 'application', flashcards: applicationFlashcards });
-        }
-
-        console.log('All flashcards generated successfully');  
-
-        return NextResponse.json({ message: 'Flashcard created', data: flashcards }, { status: 200 });
-    } catch (error) {
-        console.error('Error generating flashcards:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    if (!userId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    if (!id) {
+        return NextResponse.json({ error: 'Study pack ID is required' }, { status: 400 });
+    }
+
+    const studyPackFlashcards = await prisma.studyPack.findFirst({
+        where: {
+            id,
+            userId,
+        },
+        select: {
+            flashcardsJson: true,
+            flashcardAvailabilityJson: true,
+        },
+    });
+
+    if (!studyPackFlashcards) {
+        return NextResponse.json({ error: 'Study pack not found' }, { status: 404 });
+    }
+
+    const isFlashcardsAvailable = studyPackFlashcards.flashcardsJson ? true : false;
+    
+    let flashcardAvailabilityJson: FlashcardAvailability;
+    try {
+        flashcardAvailabilityJson = typeof studyPackFlashcards.flashcardAvailabilityJson === 'string'
+            ? JSON.parse(studyPackFlashcards.flashcardAvailabilityJson)
+            : studyPackFlashcards.flashcardAvailabilityJson;
+    } catch (error) {
+        return NextResponse.json({ error: 'Invalid flashcard availability format' }, { status: 500 });
+    }
+
+    let flashcardsJson;
+    if(isFlashcardsAvailable){
+        try {
+            flashcardsJson = typeof studyPackFlashcards.flashcardsJson === 'string'
+                ? JSON.parse(studyPackFlashcards.flashcardsJson)
+                : studyPackFlashcards.flashcardsJson;
+        } catch (error) {
+            return NextResponse.json({ error: 'Invalid flashcards format' }, { status: 500 });
+        }
+    }
+
+
+    return NextResponse.json({
+        message: 'Study pack retrieved successfully',
+        isFlashcardsAvailable,
+        flashcardAvailabilityJson,
+        ...(isFlashcardsAvailable && { flashcards: flashcardsJson })
+    }, { status: 200 });
 }

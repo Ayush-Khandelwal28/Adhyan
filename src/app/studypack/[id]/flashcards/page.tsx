@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, use } from 'react';
 import { Brain, AlertCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Filters } from '@/components/flashcards/Filters';
@@ -8,12 +8,9 @@ import { ProgressTracker } from '@/components/flashcards/ProgressTracker';
 import { FlashcardComponent } from '@/components/flashcards/Flashcard';
 import { ActionMenu } from '@/components/flashcards/ActionMenu';
 import { SessionScreen } from '@/components/flashcards/sessionScreen';
-import { Flashcard, FlashcardData, StudySession, FilterState } from '@/lib/types';
-import flashcardsData from '@/lib/mockdata/flashcard2.json';
+import { Flashcard, FlashcardGroup, StudySession, FilterState, FlashcardAvailability } from '@/lib/types';
 
-const sampleData: FlashcardData = flashcardsData as FlashcardData;
-
-export default function FlashcardPage() {
+export default function FlashcardPage({ params }: { params: Promise<{ id: string }> }) {
   const [filters, setFilters] = useState<FilterState>({
     definitions: true,
     recall: true,
@@ -31,16 +28,29 @@ export default function FlashcardPage() {
 
   const [shuffledCards, setShuffledCards] = useState<Flashcard[]>([]);
   const [isSessionComplete, setIsSessionComplete] = useState(false);
+  const [isFlashcardsAvailable, setIsFlashcardsAvailable] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [flashcards, setFlashcards] = useState<FlashcardGroup[]>([]);
+  const [flashcardAvailability, setFlashcardAvailability] = useState<FlashcardAvailability>();
+
+  const { id } = use(params);
+
+  console.log('Flashcards', flashcards);
+
+  if (!id) {
+    console.error('Study Pack ID not found in URL');
+    return <div>Error: Study Pack ID not found</div>;
+  }
 
   const allCards = useMemo(() => {
     const cards: Flashcard[] = [];
-    sampleData.data.forEach(group => {
+    flashcards.forEach(group => {
       group.flashcards.forEach(card => {
         cards.push(card);
       });
     });
     return cards;
-  }, []);
+  }, [flashcards]);
 
   const filteredCards = useMemo(() => {
     return allCards.filter(card => {
@@ -64,6 +74,81 @@ export default function FlashcardPage() {
       application: allCards.filter(card => card.type === 'application').length
     };
   }, [allCards]);
+
+  const getFlashcards = async () => {
+    try {
+      const response = await fetch(`/api/flashcards?id=${id}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch flashcards');
+      }
+      const data = await response.json();
+      console.log('Flashcards data:', data);
+      if (!data.isFlashcardsAvailable) {
+        setIsFlashcardsAvailable(false);
+        setFlashcardAvailability(data.flashcardAvailabilityJson.availability);
+        setFlashcards(data.flashcards || []);
+        setIsLoading(false);
+      }
+      else {
+        setIsFlashcardsAvailable(true);
+        setFlashcards(data.flashcards);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('Error fetching flashcards:', error);
+      setIsLoading(false);
+    }
+  }
+
+  const generateFlashcards = async () => {
+    try {
+      console.log('Generating flashcards for study pack ID:', id);
+      const response = await fetch(`/api/flashcards/generate`, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          id,
+          definition: true,
+          recall: true,
+          application: true,
+        })
+      });
+      if (!response.ok) {
+        console.log(response);
+        throw new Error('Failed to fetch flashcards');
+      }
+      const data = await response.json();
+      if (data.flashcards) {
+        setFlashcards(data.flashcards);
+        setIsFlashcardsAvailable(true);
+      } else {
+        setIsFlashcardsAvailable(false);
+        setFlashcardAvailability(data.flashcardAvailabilityJson.availability);
+      }
+    } catch (error) {
+      console.error('Error fetching flashcards:', error);
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setIsLoading(true); 
+    (async () => {
+      try {
+        await getFlashcards();
+      } catch (error) {
+        console.error('Error in flashcards effect:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, [id]);
 
   useEffect(() => {
     if (filteredCards.length > 0) {
@@ -90,9 +175,9 @@ export default function FlashcardPage() {
     const currentCardIndex = session.currentIndex;
     const newCompletedCards = new Set(session.completedCards);
     const newNeedReviewCards = new Set(session.needReviewCards);
-    
+
     newCompletedCards.add(currentCardIndex);
-    
+
     if (!correct) {
       newNeedReviewCards.add(currentCardIndex);
     }
@@ -121,14 +206,14 @@ export default function FlashcardPage() {
   const handleShuffle = () => {
     const remainingIndices = Array.from({ length: shuffledCards.length }, (_, i) => i)
       .filter(i => !session.completedCards.has(i));
-    
+
     if (remainingIndices.length > 1) {
       // Fisher-Yates shuffle for remaining indices
       for (let i = remainingIndices.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [remainingIndices[i], remainingIndices[j]] = [remainingIndices[j], remainingIndices[i]];
       }
-      
+
       setSession(prev => ({
         ...prev,
         currentIndex: remainingIndices[0]
@@ -146,7 +231,7 @@ export default function FlashcardPage() {
       needReviewCards: new Set()
     });
     setIsSessionComplete(false);
-    
+
     const newShuffled = [...shuffledCards];
     for (let i = newShuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -164,6 +249,38 @@ export default function FlashcardPage() {
   };
 
   const currentCard = shuffledCards[session.currentIndex];
+
+  if (!isLoading && !isFlashcardsAvailable) {
+    { console.log('Flashcard availability:', flashcardAvailability) }
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="container mx-auto px-6 py-8">
+          <Card className="max-w-2xl mx-auto">
+            <CardContent className="p-12 text-center">
+              <AlertCircle className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Flashcards Available for Generation</h3>
+              <div className="space-y-2 mb-6">
+                <p className="text-muted-foreground">
+                  The following flashcards can be generated:
+                </p>
+                <ul className="text-left max-w-xs mx-auto">
+                  <li>• Definition cards: {(flashcardAvailability?.definition ?? 0) > 10 ? '10+ cards' : `${flashcardAvailability?.definition ?? 0} cards`}</li>
+                  <li>• Recall cards: {(flashcardAvailability?.recall ?? 0) > 10 ? '10+ cards' : `${flashcardAvailability?.recall ?? 0} cards`}</li>
+                  <li>• Application cards: {(flashcardAvailability?.application ?? 0) > 10 ? '10+ cards' : `${flashcardAvailability?.application ?? 0} cards`}</li>
+                </ul>
+              </div>
+              <button
+                onClick={generateFlashcards}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+              >
+                Generate Flashcards
+              </button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -211,9 +328,9 @@ export default function FlashcardPage() {
           // Study interface
           <div className="space-y-6">
             {/* Progress Tracker */}
-            <ProgressTracker 
-              session={session} 
-              filteredCardsLength={shuffledCards.length} 
+            <ProgressTracker
+              session={session}
+              filteredCardsLength={shuffledCards.length}
             />
 
             {/* Action Menu */}
