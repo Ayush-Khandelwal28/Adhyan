@@ -34,14 +34,15 @@ export function getHumanPrompt(
   type: QuestionType,
   content: ExtractedQuizContent,
   questionCount: number,
-  includeExplanations: boolean
+  includeExplanations: boolean,
+  difficulty?: string
 ): string {
   const contentSummary = getContentSummary(content);
   
   const formatInstructions = type === 'MCQ' ? getMCQFormatInstructions() : getTrueFalseFormatInstructions();
 
   return `
-Generate ${questionCount} ${type === 'MCQ' ? 'multiple-choice' : 'true/false'} questions from the following study content.
+Generate ${questionCount} ${type === 'MCQ' ? 'multiple-choice' : 'true/false'} questions of difficulty ${difficulty} from the following study content.
 
 CONTENT TO CREATE QUESTIONS FROM:
 ${contentSummary}

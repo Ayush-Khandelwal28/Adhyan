@@ -15,15 +15,17 @@ export default async function generateQuizzes(
     options?: {
         questionCount?: number;
         includeExplanations?: boolean;
+        difficulty?: string; 
     }
 ): Promise<Quiz> {
     const {
         questionCount = 10,
-        includeExplanations = true
+        includeExplanations = true,
+        difficulty = 'Medium', 
     } = options || {};
 
     const systemPrompt = getSystemPrompt(type, includeExplanations);
-    const humanPrompt = getHumanPrompt(type, content, questionCount, includeExplanations);
+    const humanPrompt = getHumanPrompt(type, content, questionCount, includeExplanations, difficulty);
 
     const messages = [
         new SystemMessage({ content: systemPrompt }),

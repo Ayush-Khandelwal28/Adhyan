@@ -86,6 +86,7 @@ export interface ApplicationContentCollection {
 export interface QuizContentConfig {
   includeSubsections?: boolean;
   minPointsPerSection?: number;
+  difficulty?: 'Easy' | 'Medium' | 'Hard';
 }
 
 export interface ExtractedQuizContent {
@@ -258,4 +259,43 @@ export interface SearchResult {
   contentType: 'heading' | 'point' | 'definition' | 'example' | 'connection' | 'takeaway' | 'summary';
   content: string;
   context: string;
+}
+
+export interface QuizData {
+  id: string;
+  title: string;
+  type: 'MCQ' | 'TRUE_FALSE' ;
+  questionCount: number;
+  lastAttempted?: string;
+  lastScore?: number;
+  totalAttempts: number;
+  createdAt: string;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+}
+
+export interface QuizFilters {
+  type: 'ALL' | 'MCQ' | 'TRUE_FALSE' ;
+  difficulty: 'ALL' | 'Easy' | 'Medium' | 'Hard';
+}
+
+export interface QuizSortOption {
+  field: 'lastAttempted' | 'createdAt' | 'lastScore' ;
+  direction: 'asc' | 'desc';
+}
+
+export interface NewQuizRequest {
+  type: 'MCQ' | 'TRUE_FALSE';
+  questionCount: 5 | 10 | 15 | 20;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  title?: string;
+}
+
+export interface QuizzesResponse {
+  success: boolean;
+  data: {
+    studyPackId: string;
+    studyPackTitle: string;
+    quizzes: QuizData[];
+    totalQuizzes: number;
+  };
 }

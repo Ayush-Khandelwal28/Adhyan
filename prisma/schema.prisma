@@ -15,36 +15,65 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String?  
-  image     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  studyPacks StudyPack[]
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String?
+  password     String?
+  image        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  studyPacks   StudyPack[]
+  quizAttempts QuizAttempt[]
 }
 
 model StudyPack {
-  id             String   @id @default(cuid())
-  user           User     @relation(fields: [userId], references: [id])
-  userId         String
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 
-  title          String
-  sourceType     String
-  sourceUrl      String?
+  title      String
+  sourceType String
+  sourceUrl  String?
 
-  notesJson      Json
-  flashcardsJson Json?
-  quizJson       Json?
-  mindmapJson    Json?
-  flashcardAvailabilityJson Json? // <-- NEW FIELD
+  notesJson                 Json
+  flashcardsJson            Json?
+  mindmapJson               Json?
+  flashcardAvailabilityJson Json?
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  quizzes Quiz[]
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
   lastAccessedAt DateTime?
 
   @@index([userId])
   @@index([lastAccessedAt])
 }
 
+model Quiz {
+  id          String    @id @default(cuid())
+  studyPack   StudyPack @relation(fields: [studyPackId], references: [id])
+  studyPackId String
+
+  title      String
+  type       String 
+  difficulty String 
+  questionCount Int
+  createdAt  DateTime @default(now())
+  questions  Json 
+
+  quizAttempts QuizAttempt[]
+
+  @@index([studyPackId])
+}
+
+model QuizAttempt {
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  quiz   Quiz   @relation(fields: [quizId], references: [id])
+  quizId String
+
+  score       Float
+  attemptedAt DateTime @default(now())
+}

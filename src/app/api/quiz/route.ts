@@ -1,38 +1,34 @@
 import { NextResponse } from 'next/server';
-import { QuizContentExtractor } from '@/lib/quizzes/extractContentForQuizzes';
-import { QuizContentConfig } from '@/lib/types';
-import mlContent from '@/lib/mockdata/ml1.json';
-import generateQuiz from '@/lib/quizzes/generateQuiz';
+import prisma from '@/lib/prisma';
 
-export async function POST(request: Request) {
+export async function GET(req: Request) {
+    const { searchParams } = new URL(req.url);
+    const quizId = searchParams.get('quizId');
+
+    if (!quizId) {
+        return NextResponse.json({ message: 'Missing quizId' }, { status: 400 });
+    }
+
     try {
-        const data = await request.json();
+        const quiz = await prisma.quiz.findUnique({
+            where: { id: quizId },
+        });
 
-        const {quizType, questionCount} = data;
-
-        if (!quizType) {
-            return NextResponse.json({ error: 'Quiz type is required' }, { status: 400 });
+        if (!quiz) {
+            return NextResponse.json({ message: 'Quiz not found' }, { status: 404 });
         }
 
-        if (typeof quizType !== 'string' || quizType !== 'MCQ' && quizType !== 'TRUE_FALSE') {
-            return NextResponse.json({ error: 'Invalid quiz type' }, { status: 400 });
-        }
+        const questions = quiz.questions as any[]; // your questions are stored as JSON
 
-        if (questionCount && (typeof questionCount !== 'number' || questionCount <= 0)) {
-            return NextResponse.json({ error: 'Invalid question count' }, { status: 400 });
-        }
-
-        const config: QuizContentConfig = {
-            includeSubsections: true,
-            minPointsPerSection: 2,
+        const response = {
+            title: quiz.title,
+            questions,
+            totalQuestions: questions.length,
         };
 
-        const extractedContent = QuizContentExtractor.extractContentForQuizzes(mlContent.data, config);
-
-        const generatedQuiz = await generateQuiz(quizType, extractedContent, {questionCount: questionCount, includeExplanations: true});
-
-        return NextResponse.json({ message: 'Success', data: generatedQuiz }, { status: 201 });
+        return NextResponse.json({ message: 'Success', data: response });
     } catch (error) {
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        console.error('[GET_QUIZ_ERROR]', error);
+        return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
     }
 }
