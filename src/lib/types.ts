@@ -172,24 +172,6 @@ export interface StudyPack {
   type: string;
 }
 
-export interface MindMapNodeData {
-  label: string;
-  content: string;
-  type: 'root' | 'section' | 'subsection' | 'takeaway';
-  isExpanded: boolean;
-  childrenIds: string[];
-  parentId?: string;
-  originalData?: any;
-  pointsCount?: number;
-  definitionsCount?: number;
-  examplesCount?: number;
-  nodeKey: string;
-  hasExpandableChildren: boolean;
-}
-
-export type MindMapNode = import('reactflow').Node<MindMapNodeData>;
-export type MindMapEdge = import('reactflow').Edge;
-
 export interface FlashcardGroup {
   type: 'definition' | 'recall' | 'application';
   flashcards: Flashcard[];
@@ -222,7 +204,7 @@ export interface QuizResponse {
 
 export interface UserAnswer {
   questionIndex: number;
-  answer: boolean | number; 
+  answer: boolean | number;
   isCorrect: boolean;
 }
 
@@ -264,7 +246,7 @@ export interface SearchResult {
 export interface QuizData {
   id: string;
   title: string;
-  type: 'MCQ' | 'TRUE_FALSE' ;
+  type: 'MCQ' | 'TRUE_FALSE';
   questionCount: number;
   lastAttempted?: string;
   lastScore?: number;
@@ -274,12 +256,12 @@ export interface QuizData {
 }
 
 export interface QuizFilters {
-  type: 'ALL' | 'MCQ' | 'TRUE_FALSE' ;
+  type: 'ALL' | 'MCQ' | 'TRUE_FALSE';
   difficulty: 'ALL' | 'Easy' | 'Medium' | 'Hard';
 }
 
 export interface QuizSortOption {
-  field: 'lastAttempted' | 'createdAt' | 'lastScore' ;
+  field: 'lastAttempted' | 'createdAt' | 'lastScore';
   direction: 'asc' | 'desc';
 }
 
@@ -299,3 +281,40 @@ export interface QuizzesResponse {
     totalQuizzes: number;
   };
 }
+
+export interface MindMapStructure {
+  central_concept: string;
+  branches: MindMapBranch[];
+}
+
+export interface MindMapBranch {
+  branch_label: string;
+  main_nodes: MindMapNode[];
+}
+
+export interface MindMapNode {
+  label: string;
+  node_type: 'concept' | 'detail' | 'example';
+  children?: MindMapNode[];
+  emphasis_level?: 'high' | 'medium' | 'low';
+}
+
+// Internal types for ReactFlow
+export interface MindMapNodeData {
+  label: string;
+  content: string;
+  type: 'central' | 'branch' | 'main_node' | 'child_node';
+  nodeType: 'concept' | 'detail' | 'example';
+  emphasisLevel?: 'high' | 'medium' | 'low';
+  isExpanded: boolean;
+  childrenIds: string[];
+  parentId?: string;
+  originalData?: any;
+  nodeKey: string;
+  hasExpandableChildren: boolean;
+  angle?: number;
+  childrenAngles?: number[];
+}
+
+export type ReactFlowNode = import('reactflow').Node<MindMapNodeData>;
+export type ReactFlowEdge = import('reactflow').Edge;

@@ -1,4 +1,4 @@
-import { StudyNotesStructure, ParseResult, Flashcard, MCQQuestion, TrueFalseQuestion } from '@/lib/types'
+import { MindMapStructure, ParseResult, StudyNotesStructure, Flashcard, MCQQuestion, TrueFalseQuestion } from './types';
 
 export class JsonParser {
   
@@ -698,37 +698,140 @@ export class JsonParser {
   }
 
   
-   // Convenience method specifically for MCQ quizzes
+   // Validate node structure
    
-  static parseMCQQuiz(response: any): ParseResult<MCQQuestion[]> {
-    const parseResult = this.parseAIResponse<MCQQuestion[]>(response);
+  private static validateNode(node: any, index: number, parentContext: string): string[] {
+    const errors: string[] = [];
 
-    if (!parseResult.success) {
-      return parseResult;
+    if (!node || typeof node !== 'object') {
+      errors.push(`${parentContext}, Node ${index}: Must be an object`);
+      return errors;
     }
 
-    return this.validateMCQQuizStructure(parseResult.data);
+    if (!node.label || typeof node.label !== 'string') {
+      errors.push(`${parentContext}, Node ${index}: Missing or invalid 'label' field`);
+    }
+
+    if (!node.node_type || typeof node.node_type !== 'string' || 
+        !['concept', 'detail', 'example'].includes(node.node_type)) {
+      errors.push(`${parentContext}, Node ${index}: Invalid 'node_type' field (must be 'concept', 'detail', or 'example')`);
+    }
+
+    if (!node.emphasis_level || typeof node.emphasis_level !== 'string' || 
+        !['high', 'medium', 'low'].includes(node.emphasis_level)) {
+      errors.push(`${parentContext}, Node ${index}: Invalid 'emphasis_level' field (must be 'high', 'medium', or 'low')`);
+    }
+
+    // Validate children if they exist
+    if (node.children !== undefined) {
+      if (!Array.isArray(node.children)) {
+        errors.push(`${parentContext}, Node ${index}: children must be an array if present`);
+      } else {
+        node.children.forEach((child: any, childIndex: number) => {
+          const childErrors = this.validateNode(child, childIndex, `${parentContext}, Node ${index}`);
+          errors.push(...childErrors);
+        });
+      }
+    }
+
+    return errors;
   }
 
   
-   // Convenience method specifically for True/False quizzes
+   // Validate branch structure
    
-  static parseTrueFalseQuiz(response: any): ParseResult<TrueFalseQuestion[]> {
-    const parseResult = this.parseAIResponse<TrueFalseQuestion[]>(response);
+  private static validateBranch(branch: any, index: number): string[] {
+    const errors: string[] = [];
+
+    if (!branch || typeof branch !== 'object') {
+      errors.push(`Branch ${index}: Must be an object`);
+      return errors;
+    }
+
+    if (!branch.branch_label || typeof branch.branch_label !== 'string') {
+      errors.push(`Branch ${index}: Missing or invalid 'branch_label' field`);
+    }
+
+    if (!branch.main_nodes || !Array.isArray(branch.main_nodes)) {
+      errors.push(`Branch ${index}: Missing or invalid 'main_nodes' array`);
+    } else {
+      branch.main_nodes.forEach((node: any, nodeIndex: number) => {
+        const nodeErrors = this.validateNode(node, nodeIndex, `Branch ${index}`);
+        errors.push(...nodeErrors);
+      });
+    }
+
+    return errors;
+  }
+
+  
+   // Validate mind map structure
+   
+  static validateMindMapStructure(data: any): ParseResult<MindMapStructure> {
+    try {
+      const errors: string[] = [];
+
+      if (!data || typeof data !== 'object') {
+        errors.push('Data must be an object');
+        return {
+          success: false,
+          error: errors.join(', '),
+          data: data
+        };
+      }
+
+      if (!data.central_concept || typeof data.central_concept !== 'string') {
+        errors.push('Missing or invalid central_concept');
+      }
+
+      if (!data.branches || !Array.isArray(data.branches)) {
+        errors.push('Missing or invalid branches array');
+      } else {
+        data.branches.forEach((branch: any, index: number) => {
+          const branchErrors = this.validateBranch(branch, index);
+          errors.push(...branchErrors);
+        });
+      }
+
+      if (errors.length > 0) {
+        return {
+          success: false,
+          error: `Validation failed: ${errors.join(', ')}`,
+          data: data
+        };
+      }
+
+      return {
+        success: true,
+        data: data as MindMapStructure
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Validation error: ${error instanceof Error ? error.message : String(error)}`,
+        data: data
+      };
+    }
+  }
+
+  
+   // Convenience method specifically for mind maps
+   
+  static parseMindMap(response: any): ParseResult<MindMapStructure> {
+    const parseResult = this.parseAIResponse<MindMapStructure>(response);
 
     if (!parseResult.success) {
       return parseResult;
     }
 
-    return this.validateTrueFalseQuizStructure(parseResult.data);
+    return this.validateMindMapStructure(parseResult.data);
   }
 }
 
-// Export convenience functions
-export const parseAIResponse = JsonParser.parseAIResponse;
-export const parseStudyNotes = JsonParser.parseStudyNotes;
-export const parseFlashcards = JsonParser.parseFlashcards;
-export const validateStudyNotesStructure = JsonParser.validateStudyNotesStructure;
-export const validateFlashcardsStructure = JsonParser.validateFlashcardsStructure;
-export const parseMCQQuiz = JsonParser.parseMCQQuiz;
-export const parseTrueFalseQuiz = JsonParser.parseTrueFalseQuiz;
+// Export convenience functions as bound methods
+export const parseAIResponse = JsonParser.parseAIResponse.bind(JsonParser);
+export const parseStudyNotes = JsonParser.parseStudyNotes.bind(JsonParser);
+export const parseFlashcards = JsonParser.parseFlashcards.bind(JsonParser);
+export const validateStudyNotesStructure = JsonParser.validateStudyNotesStructure.bind(JsonParser);
+export const validateFlashcardsStructure = JsonParser.validateFlashcardsStructure.bind(JsonParser);
+export const parseMindMap = JsonParser.parseMindMap.bind(JsonParser);

@@ -1,74 +1,58 @@
 import { MarkerType } from 'reactflow';
-import { StudyNotesStructure, StudyNotesSection, StudyNotesSubsection, MindMapNode, MindMapEdge } from '@/lib/types';
-import { Breakpoint } from '../hooks/useBreakpoint';
+import { MindMapStructure, MindMapBranch, MindMapNode, ReactFlowNode, ReactFlowEdge, MindMapNodeData } from '@/lib/types';
 
 export const transformToMindMap = (
-  studyNotes: StudyNotesStructure,
-  expandedNodes: Set<string>,
-  breakpoint: Breakpoint
-): { nodes: MindMapNode[]; edges: MindMapEdge[] } => {
-  const nodes: MindMapNode[] = [];
-  const edges: MindMapEdge[] = [];
+  mindMapData: MindMapStructure,
+  expandedNodes: Set<string>
+): { nodes: ReactFlowNode[]; edges: ReactFlowEdge[] } => {
+  const nodes: ReactFlowNode[] = [];
+  const edges: ReactFlowEdge[] = [];
   let nodeIdCounter = 0;
 
-  // Responsive layout configuration using Tailwind breakpoints
-  const getLayoutConfig = () => {
-    switch (breakpoint) {
-      case 'sm': // < 640px
-        return {
-          ROOT_Y: 30,
-          SECTION_Y: 180,
-          SUBSECTION_Y: 320,
-          NODE_SPACING: 200,
-          SUBSECTION_SPACING: 150,
-          CENTER_OFFSET: 100,
-        };
-      case 'md': // 640px - 768px
-        return {
-          ROOT_Y: 40,
-          SECTION_Y: 220,
-          SUBSECTION_Y: 400,
-          NODE_SPACING: 250,
-          SUBSECTION_SPACING: 180,
-          CENTER_OFFSET: 120,
-        };
-      case 'lg': // 768px - 1024px
-        return {
-          ROOT_Y: 50,
-          SECTION_Y: 250,
-          SUBSECTION_Y: 450,
-          NODE_SPACING: 300,
-          SUBSECTION_SPACING: 200,
-          CENTER_OFFSET: 140,
-        };
-      default: // xl and above
-        return {
-          ROOT_Y: 60,
-          SECTION_Y: 280,
-          SUBSECTION_Y: 500,
-          NODE_SPACING: 350,
-          SUBSECTION_SPACING: 220,
-          CENTER_OFFSET: 160,
-        };
-    }
+  // Define layout constants for different levels of nodes
+  const layout = {
+    BRANCH_RADIUS: 250,
+    MAIN_NODE_RADIUS: 400,
+    CHILD_NODE_RADIUS: 550,
+    GRANDCHILD_NODE_RADIUS: 700,
+
+    NODE_ARC_SPAN: Math.PI / 3,
+    CHILD_ARC_SPAN: Math.PI / 5,
+    GRANDCHILD_ARC_SPAN: Math.PI / 7,
+
+    CENTER_OFFSET: 140,
   };
 
-  const layout = getLayoutConfig();
   const centerX = typeof window !== 'undefined' ? window.innerWidth / 2 : 512;
+  const centerY = typeof window !== 'undefined' ? window.innerHeight / 2 : 400;
+
+  const getNodeTypeColor = (nodeType: 'concept' | 'detail' | 'example'): string => {
+    switch (nodeType) {
+      case 'concept':
+        return '#3b82f6'; // Blue
+      case 'detail':
+        return '#ef4444'; // Red
+      case 'example':
+        return '#10b981'; // Green
+      default:
+        return '#6b7280'; // Gray (fallback)
+    }
+  };
 
   const createNode = (
     label: string,
     content: string,
-    type: 'root' | 'section' | 'subsection' | 'takeaway',
+    type: 'central' | 'branch' | 'main_node' | 'child_node' | 'grandchild_node',
+    nodeType: 'concept' | 'detail' | 'example',
     x: number,
     y: number,
     nodeKey: string,
     parentId?: string,
-    originalData?: any,
-    pointsCount = 0,
-    definitionsCount = 0,
-    examplesCount = 0,
-    hasExpandableChildren = false
+    originalData?: MindMapNode | MindMapBranch,
+    emphasisLevel?: 'high' | 'medium' | 'low',
+    hasExpandableChildren = false,
+    angle?: number,
+    childrenAngles?: number[]
   ): string => {
     const id = `node-${nodeIdCounter++}`;
     const isExpanded = expandedNodes.has(nodeKey);
@@ -77,21 +61,22 @@ export const transformToMindMap = (
       id,
       type: 'custom',
       position: { x, y },
-      draggable: true, // Enable dragging for all nodes
+      draggable: true,
       data: {
         label,
         content,
         type,
+        nodeType,
+        emphasisLevel,
         isExpanded,
         childrenIds: [],
         parentId,
         originalData,
-        pointsCount,
-        definitionsCount,
-        examplesCount,
         nodeKey,
         hasExpandableChildren,
-      },
+        angle,
+        childrenAngles,
+      } as MindMapNodeData,
     });
     return id;
   };
@@ -103,14 +88,14 @@ export const transformToMindMap = (
     }
   };
 
-  const createEdge = (sourceId: string, targetId: string, color: string, isDashed = false) => {
+  const createEdge = (sourceId: string, targetId: string, color: string, isDashed = false, sourceHandle?: string) => {
     edges.push({
       id: `edge-${sourceId}-${targetId}`,
       source: sourceId,
-      sourceHandle: 'output',
+      sourceHandle: sourceHandle || 'output',
       target: targetId,
       targetHandle: 'input',
-      type: 'smoothstep',
+      type: 'straight',
       animated: isDashed,
       markerEnd: {
         type: MarkerType.ArrowClosed,
@@ -126,98 +111,174 @@ export const transformToMindMap = (
     });
   };
 
-  const getSectionContentCount = (section: StudyNotesSection) => {
-    const pointsCount = section.points?.length || 0;
-    const definitionsCount = section.definitions?.length || 0;
-    const examplesCount = section.examples?.length || 0;
-    return { pointsCount, definitionsCount, examplesCount };
+  const renderNodesRecursive = (
+    parentKey: string,
+    parentId: string,
+    children: MindMapNode[],
+    parentAngle: number,
+    parentX: number,
+    parentY: number,
+    currentRadius: number,
+    arcSpan: number,
+    level: number
+  ) => {
+    if (!children || children.length === 0 || !expandedNodes.has(parentKey)) {
+      return;
+    }
+
+    const childCount = children.length;
+
+    children.forEach((childNode: MindMapNode, childIndex) => {
+      let childAngle: number;
+      if (childCount === 1) {
+        childAngle = parentAngle;
+      } else {
+        const arcStart = parentAngle - arcSpan / 2;
+        const angleStep = arcSpan / (childCount - 1);
+        childAngle = arcStart + (childIndex * angleStep);
+      }
+
+      // Calculate position for the child node
+      const childX = centerX + Math.cos(childAngle) * currentRadius - layout.CENTER_OFFSET;
+      const childY = centerY + Math.sin(childAngle) * currentRadius;
+
+      // Generate a unique key for the child node for expansion tracking
+      const childKey = `${parentKey}-${childIndex}`;
+
+      // Calculate the input angle for the child node (angle from child to parent)
+      const childInputAngle = Math.atan2(
+        parentY - childY,
+        parentX - childX
+      );
+
+      let nodeTypeForCreateNode: 'branch' | 'main_node' | 'child_node' | 'grandchild_node';
+      let nextRadius: number;
+      let nextArcSpan: number;
+
+      switch (level) {
+        case 0:
+          nodeTypeForCreateNode = 'branch';
+          nextRadius = layout.MAIN_NODE_RADIUS;
+          nextArcSpan = layout.NODE_ARC_SPAN;
+          break;
+        case 1:
+          nodeTypeForCreateNode = 'main_node';
+          nextRadius = layout.CHILD_NODE_RADIUS;
+          nextArcSpan = layout.CHILD_ARC_SPAN;
+          break;
+        case 2:
+          nodeTypeForCreateNode = 'child_node';
+          nextRadius = layout.GRANDCHILD_NODE_RADIUS;
+          nextArcSpan = layout.GRANDCHILD_ARC_SPAN;
+          break;
+        default:
+          nodeTypeForCreateNode = 'grandchild_node';
+          nextRadius = currentRadius + 150; // Dynamically increase radius for visual separation
+          nextArcSpan = arcSpan * 0.8;      // Gradually narrow the arc span
+          break;
+      }
+
+      const childId = createNode(
+        childNode.label,
+        childNode.label,
+        nodeTypeForCreateNode,
+        childNode.node_type,
+        childX,
+        childY,
+        childKey,
+        parentId,
+        childNode,
+        childNode.emphasis_level,
+        childNode.children && childNode.children.length > 0, // Check if THIS child has children
+        childInputAngle
+      );
+
+      // Update parent node's children list and create an edge to the current child
+      updateNodeChildren(parentId, childId);
+      createEdge(parentId, childId, getNodeTypeColor(childNode.node_type));
+
+      if (childNode.children && childNode.children.length > 0) {
+        renderNodesRecursive(
+          childKey,
+          childId,
+          childNode.children,
+          childAngle,
+          childX, childY,
+          nextRadius,
+          nextArcSpan,
+          level + 1
+        );
+      }
+    });
   };
 
-  const getSubsectionContentCount = (subsection: StudyNotesSubsection) => {
-    const pointsCount = subsection.points?.length || 0;
-    const definitionsCount = subsection.definitions?.length || 0;
-    const examplesCount = subsection.examples?.length || 0;
-    return { pointsCount, definitionsCount, examplesCount };
-  };
+  // Create the central concept node
+  const branchCount = mindMapData.branches.length;
+  const centralChildrenAngles: number[] = [];
 
-  // Create root node at the top center
-  const rootId = createNode(
-    studyNotes.title,
-    studyNotes.title,
-    'root',
+  // Pre-calculate branch angles for central node handles (if using specific handles)
+  mindMapData.branches.forEach((branch, branchIndex) => {
+    const branchAngle = (branchIndex / branchCount) * 2 * Math.PI;
+    centralChildrenAngles.push(branchAngle);
+  });
+
+  const centralId = createNode(
+    mindMapData.central_concept,
+    mindMapData.central_concept,
+    'central',
+    'concept',
     centerX - layout.CENTER_OFFSET,
-    layout.ROOT_Y,
-    'root',
+    centerY,
+    'central',
     undefined,
     undefined,
+    'high',
+    mindMapData.branches.length > 0,
     0,
-    0,
-    0,
-    studyNotes.sections.length > 0
+    centralChildrenAngles
   );
 
-  // Calculate section positions - spread horizontally
-  const sectionCount = studyNotes.sections.length;
-  const totalSectionWidth = (sectionCount - 1) * layout.NODE_SPACING;
-  const sectionStartX = centerX - totalSectionWidth / 2;
+  // Iterate through branches and start the recursive rendering for their main_nodes
+  mindMapData.branches.forEach((branch: MindMapBranch, branchIndex) => {
 
-  studyNotes.sections.forEach((section, sectionIndex) => {
-    const sectionX = sectionStartX + (sectionIndex * layout.NODE_SPACING) - layout.CENTER_OFFSET;
-    const sectionKey = `section-${section.heading}`;
+    const branchAngle = (branchIndex / branchCount) * 2 * Math.PI;
+    const branchX = centerX + Math.cos(branchAngle) * layout.BRANCH_RADIUS - layout.CENTER_OFFSET;
+    const branchY = centerY + Math.sin(branchAngle) * layout.BRANCH_RADIUS;
+    const branchKey = `branch-${branchIndex}`; // Unique key for the branch node
 
-    const contentCount = getSectionContentCount(section);
-    const hasSubsections = section.subsections && section.subsections.length > 0;
-
-    const sectionId = createNode(
-      section.heading,
-      section.heading,
-      'section',
-      sectionX,
-      layout.SECTION_Y,
-      sectionKey,
-      rootId,
-      section,
-      contentCount.pointsCount,
-      contentCount.definitionsCount,
-      contentCount.examplesCount,
-      hasSubsections
+    const branchInputAngle = Math.atan2(
+      centerY - branchY,
+      (centerX - layout.CENTER_OFFSET) - branchX
     );
 
-    updateNodeChildren(rootId, sectionId);
-    createEdge(rootId, sectionId, '#6366f1');
+    const branchId = createNode(
+      branch.branch_label,
+      branch.branch_label,
+      'branch',
+      'concept',
+      branchX,
+      branchY,
+      branchKey,
+      centralId,
+      branch,
+      'high',
+      branch.main_nodes.length > 0,
+      branchInputAngle
+    );
 
-    const sectionExpanded = expandedNodes.has(sectionKey);
+    updateNodeChildren(centralId, branchId);
+    createEdge(centralId, branchId, '#6366f1', false, `output-${branchIndex}`);
 
-    // Add subsections if expanded
-    if (sectionExpanded && hasSubsections) {
-      const subsectionCount = section.subsections!.length;
-      const totalSubsectionWidth = (subsectionCount - 1) * layout.SUBSECTION_SPACING;
-      const subsectionStartX = sectionX - totalSubsectionWidth / 2;
-
-      section.subsections!.forEach((subsection, subsectionIndex) => {
-        const subsectionX = subsectionStartX + (subsectionIndex * layout.SUBSECTION_SPACING);
-        const subsectionKey = `subsection-${section.heading}-${subsection.subheading}`;
-
-        const subsectionContentCount = getSubsectionContentCount(subsection);
-        const subsectionId = createNode(
-          subsection.subheading,
-          subsection.subheading,
-          'subsection',
-          subsectionX,
-          layout.SUBSECTION_Y,
-          subsectionKey,
-          sectionId,
-          subsection,
-          subsectionContentCount.pointsCount,
-          subsectionContentCount.definitionsCount,
-          subsectionContentCount.examplesCount,
-          false
-        );
-
-        updateNodeChildren(sectionId, subsectionId);
-        createEdge(sectionId, subsectionId, '#22c55e');
-      });
-    }
+    renderNodesRecursive(
+      branchKey,
+      branchId,
+      branch.main_nodes,
+      branchAngle,
+      branchX, branchY,
+      layout.MAIN_NODE_RADIUS,
+      layout.NODE_ARC_SPAN,
+      1
+    );
   });
 
   return { nodes, edges };
