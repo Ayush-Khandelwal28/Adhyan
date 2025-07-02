@@ -1,8 +1,7 @@
 import React from 'react';
-import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Brain, HelpCircle, BookOpen, Printer, Type, ArrowUp } from 'lucide-react';
+import { Brain, HelpCircle, Map, Printer, Type, ArrowUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface StudyToolsPanelProps {
@@ -33,7 +32,7 @@ export const StudyToolsPanel: React.FC<StudyToolsPanelProps> = ({
   const handleToolClick = (tool: string) => {
     switch (tool) {
       case 'mindMap':
-        router.push(`/studypack/${studyPackId}/mind-map`);
+        router.push(`/studypack/${studyPackId}/mindmap`);
         break;
       case 'quiz':
         router.push(`/studypack/${studyPackId}/quiz`);
@@ -50,7 +49,7 @@ export const StudyToolsPanel: React.FC<StudyToolsPanelProps> = ({
     {
       tool: 'mindMap',
       label: 'Mind Map',
-      icon: BookOpen,
+      icon: Map,
       gradient: 'from-blue-500 to-blue-600'
     },
     {
@@ -82,7 +81,7 @@ export const StudyToolsPanel: React.FC<StudyToolsPanelProps> = ({
             {tools.map(({ tool, label, icon: Icon, gradient }) => (
               <Button 
               key={tool}
-              className={`w-full h-16 bg-gradient-to-r ${gradient} text-white`}
+              className={`w-full h-16 bg-gradient-to-r ${gradient} text-white cursor-pointer`}
               onClick={() => handleToolClick(tool)}
               >
               <div className="flex flex-col items-center space-y-1">

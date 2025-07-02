@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef, use } from 'react';
 
-import { StudyPackHeader } from '@/components/studyPack/Header';
 import { TableOfContents } from '@/components/studyPack/TableOfContents';
 import { NotesContent } from '@/components/studyPack/Notes';
 import { StudyToolsPanel } from '@/components/studyPack/ToolsPanel';
@@ -85,12 +84,8 @@ export default function StudyPackPage({ params }: { params: Promise<{ id: string
   }
 
   return (
-
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-6 py-8">
-        {/* Study Pack Header */}
-        <StudyPackHeader studyPack={studyPack} />
-
         {/* Main Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Panel - Notes Section (Desktop: 70%, Mobile: Full width) */}

@@ -163,16 +163,8 @@ export default function QuizzesPage({ params }: { params: Promise<{ id: string }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="container mx-auto px-6 py-8">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center space-x-3">
-              <Brain className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Quizzes</h1>
-            </div>
-            <ThemeToggle />
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <Card key={i} className="animate-pulse">
@@ -192,53 +184,14 @@ export default function QuizzesPage({ params }: { params: Promise<{ id: string }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          {/* Breadcrumb Navigation */}
-          <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-4">
-            <Link href="/dashboard" className="hover:text-foreground transition-colors">
-              Dashboard
-            </Link>
-            <span>/</span>
-            {/* <Link href="/study-pack" className="hover:text-foreground transition-colors">
-            {sampleQuizzesData.data.studyPackTitle}
-          </Link> */}
-            <span>/</span>
-            <span className="text-foreground font-medium">Quizzes</span>
-          </nav>
-
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div className="space-y-2">
-              <div className="flex items-center space-x-3">
-                <Link href="/study-pack">
-                  <Button variant="outline" size="sm" className="flex items-center space-x-2">
-                    <ArrowLeft className="w-4 h-4" />
-                    <span>Back to Study Pack</span>
-                  </Button>
-                </Link>
-              </div>
-
-              <div className="flex items-center space-x-3">
-                <Brain className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                <div>
-                  <h1 className="text-3xl md:text-4xl font-bold text-foreground">
-                    Quizzes
-                  </h1>
-                  {/* <p className="text-muted-foreground">
-                  {sampleQuizzesData.data.studyPackTitle}
-                </p> */}
-                </div>
-              </div>
-            </div>
-
-            {/* Generate New Quiz Button */}
-            <NewQuizDialog
-              onCreateQuiz={handleCreateQuiz}
-              isCreating={isCreatingQuiz}
-            />
-          </div>
+        {/* Action Bar */}
+        <div className="flex justify-end mb-6">
+          <NewQuizDialog
+            onCreateQuiz={handleCreateQuiz}
+            isCreating={isCreatingQuiz}
+          />
         </div>
 
         {/* Filters and Sorting */}

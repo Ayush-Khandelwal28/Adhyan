@@ -253,7 +253,7 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
   if (!isLoading && !isFlashcardsAvailable) {
     { console.log('Flashcard availability:', flashcardAvailability) }
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="container mx-auto px-6 py-8">
           <Card className="max-w-2xl mx-auto">
             <CardContent className="p-12 text-center">
@@ -283,17 +283,8 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-3">
-            <Brain className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Machine Learning Flashcards
-            </h1>
-          </div>
-        </div>
 
         <Filters
           filters={filters}
