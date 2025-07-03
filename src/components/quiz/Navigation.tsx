@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Flag } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 interface QuizNavigationProps {
   currentQuestion: number;
@@ -15,8 +14,6 @@ interface QuizNavigationProps {
 }
 
 export const QuizNavigation: React.FC<QuizNavigationProps> = ({
-  currentQuestion,
-  totalQuestions,
   onPrevious,
   onNext,
   onFinish,

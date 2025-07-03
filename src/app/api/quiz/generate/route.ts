@@ -17,10 +17,10 @@ export async function POST(request: Request) {
 
         const { quizTitle, quizType, questionCount, difficulty } = data;
 
-        if(!quizTitle || typeof quizTitle !== 'string' || quizTitle.trim() === '') {
+        if (!quizTitle || typeof quizTitle !== 'string' || quizTitle.trim() === '') {
             return NextResponse.json({ error: 'Quiz Title is not valid' }, { status: 400 });
         }
-        
+
 
         if (!quizType) {
             return NextResponse.json({ error: 'Quiz type is required' }, { status: 400 });
@@ -92,6 +92,6 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ message: 'Success', data: uploadQuiz }, { status: 201 });
     } catch (error) {
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        return NextResponse.json({ error: (error instanceof Error ? error.message : 'Internal Server Error') }, { status: 500 });
     }
 }

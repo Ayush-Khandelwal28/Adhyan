@@ -56,7 +56,7 @@ export default function Mindmap({ params }: { params: Promise<{ id: string }> })
   const generateMindMap = async (id: string) => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/generate/mindmap", {
+      const response = await fetch("/api/mindmap/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

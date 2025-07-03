@@ -10,11 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-// import { Separator } from '@/components/ui/separator';
 
 export default function SignIn() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -67,7 +66,7 @@ export default function SignIn() {
         <div className="flex items-center justify-between mb-8">
           <Link href="/" className="inline-flex items-center space-x-2 text-2xl font-bold text-gray-900 dark:text-white">
             <Brain className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-            <span>StudyAI</span>
+            <span>Adhyan</span>
           </Link>
           <ThemeToggle />
         </div>
@@ -189,7 +188,7 @@ export default function SignIn() {
 
             {/* Sign Up Link */}
             <p className="text-center text-sm text-muted-foreground">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link
                 href="/auth/signup"
                 className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"

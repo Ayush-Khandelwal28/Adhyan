@@ -17,15 +17,6 @@ export default function StudyPackPage({ params }: { params: Promise<{ id: string
   const [isMobile, setIsMobile] = useState(false);
 
   const { id } = use(params);
-
-  if (!id) {
-    console.error('Study Pack ID not found in URL');
-    return <div>Error: Study Pack ID not found</div>;
-  }
-
-  console.log('Study Notes ', studyNotes);
-  console.log('Study Pack', studyPack);
-
   const contentRef = useRef<HTMLDivElement>(null);
 
   const getStudyPackById = async (id: string) => {
@@ -44,6 +35,8 @@ export default function StudyPackPage({ params }: { params: Promise<{ id: string
 
   // Check if mobile on mount and resize
   useEffect(() => {
+    if (!id) return;
+    
     const fetchData = async () => {
       await getStudyPackById(id);
     };
@@ -57,6 +50,14 @@ export default function StudyPackPage({ params }: { params: Promise<{ id: string
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, [id]);
+
+  if (!id) {
+    console.error('Study Pack ID not found in URL');
+    return <div>Error: Study Pack ID not found</div>;
+  }
+
+  console.log('Study Notes ', studyNotes);
+  console.log('Study Pack', studyPack);
 
   // Handle section navigation from TOC
   const handleSectionClick = (sectionId: string) => {

@@ -1,11 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, use } from 'react';
-import Link from 'next/link';
-import { Brain, Plus, AlertCircle, ArrowLeft } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/components/theme-toggle';
 
 import { QuizCard } from '@/components/quiz/Card';
 import { QuizFiltersComponent } from '@/components/quiz/Filters';
@@ -60,12 +57,12 @@ export default function QuizzesPage({ params }: { params: Promise<{ id: string }
       console.error('Error loading quizzes:', error);
       setIsLoading(false);
     });
-  }, []);
+  }, [id]);
 
   // Filter and sort quizzes
   const filteredAndSortedQuizzes = useMemo(() => {
     if (!quizzes || quizzes.length === 0) return [];
-    let filtered = quizzes.filter(quiz => {
+    const filtered = quizzes.filter(quiz => {
       if (!quiz) return false;
       const typeMatch = filters.type === 'ALL' || quiz.type === filters.type;
       const difficultyMatch = filters.difficulty === 'ALL' || quiz.difficulty === filters.difficulty;

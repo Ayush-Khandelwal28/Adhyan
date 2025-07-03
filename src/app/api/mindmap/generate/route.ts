@@ -48,7 +48,7 @@ export async function POST(request: Request) {
                 ? JSON.parse(studyPack.notesJson)
                 : studyPack.notesJson;
         } catch (error) {
-            return NextResponse.json({ error: 'Invalid notes data format' }, { status: 500 });
+            return NextResponse.json({ error: error instanceof Error ? error.message : 'Invalid notes data format' }, { status: 500 });
         }
 
         const mindmap = await generateMindmap(parsedNotesJson);

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, use } from 'react';
-import { Brain, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Filters } from '@/components/flashcards/Filters';
 import { ProgressTracker } from '@/components/flashcards/ProgressTracker';
@@ -11,6 +11,8 @@ import { SessionScreen } from '@/components/flashcards/sessionScreen';
 import { Flashcard, FlashcardGroup, StudySession, FilterState, FlashcardAvailability } from '@/lib/types';
 
 export default function FlashcardPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+
   const [filters, setFilters] = useState<FilterState>({
     definitions: true,
     recall: true,
@@ -32,15 +34,6 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
   const [isLoading, setIsLoading] = useState(true);
   const [flashcards, setFlashcards] = useState<FlashcardGroup[]>([]);
   const [flashcardAvailability, setFlashcardAvailability] = useState<FlashcardAvailability>();
-
-  const { id } = use(params);
-
-  console.log('Flashcards', flashcards);
-
-  if (!id) {
-    console.error('Study Pack ID not found in URL');
-    return <div>Error: Study Pack ID not found</div>;
-  }
 
   const allCards = useMemo(() => {
     const cards: Flashcard[] = [];
@@ -75,7 +68,9 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
     };
   }, [allCards]);
 
-  const getFlashcards = async () => {
+  const getFlashcards = React.useCallback(async () => {
+    if (!id) return;
+
     try {
       const response = await fetch(`/api/flashcards?id=${id}`, {
         headers: {
@@ -102,9 +97,11 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
       console.error('Error fetching flashcards:', error);
       setIsLoading(false);
     }
-  }
+  }, [id]);
 
   const generateFlashcards = async () => {
+    if (!id) return;
+
     try {
       console.log('Generating flashcards for study pack ID:', id);
       const response = await fetch(`/api/flashcards/generate`, {
@@ -138,7 +135,9 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
   };
 
   useEffect(() => {
-    setIsLoading(true); 
+    if (!id) return;
+
+    setIsLoading(true);
     (async () => {
       try {
         await getFlashcards();
@@ -148,7 +147,7 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
         setIsLoading(false);
       }
     })();
-  }, [id]);
+  }, [id, getFlashcards]);
 
   useEffect(() => {
     if (filteredCards.length > 0) {
@@ -164,6 +163,13 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
       setIsSessionComplete(false);
     }
   }, [filteredCards]);
+
+  console.log('Flashcards', flashcards);
+
+  if (!id) {
+    console.error('Study Pack ID not found in URL');
+    return <div>Error: Study Pack ID not found</div>;
+  }
 
   const hasActiveFilters = filters.definitions || filters.recall || filters.application;
 

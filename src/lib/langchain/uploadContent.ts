@@ -4,14 +4,14 @@ import { JsonParser } from "@/lib/jsonParser"
 import { StudyNotesStructure } from "../types";
 
 const llm = new ChatGoogleGenerativeAI({
-    apiKey: process.env.GOOGLE_API_KEY,
-    model: "gemini-2.0-flash",
+  apiKey: process.env.GOOGLE_API_KEY,
+  model: "gemini-2.0-flash",
 });
 
 export async function generateStructuredNotes(fullContent: string): Promise<StudyNotesStructure> {
-    const messages = [
-        new SystemMessage(
-            `You are an expert study assistant specializing in creating highly organized and comprehensive study notes. Your goal is to extract key information from provided content and structure it for effective learning and review.
+  const messages = [
+    new SystemMessage(
+      `You are an expert study assistant specializing in creating highly organized and comprehensive study notes. Your goal is to extract key information from provided content and structure it for effective learning and review.
 
 ## Instructions
 
@@ -107,31 +107,31 @@ Return ONLY the JSON object with no additional text, commentary, or formatting
 Ensure valid JSON syntax with proper escaping of quotes and special characters
 Do not wrap the JSON in markdown code blocks or any other formatting
 `
-        ),
-        new HumanMessage(
-            `Create structured study notes in the specified JSON format based on the following content:\n\n${fullContent}`
-        ),
-    ];
+    ),
+    new HumanMessage(
+      `Create structured study notes in the specified JSON format based on the following content:\n\n${fullContent}`
+    ),
+  ];
 
-    const response = await llm.invoke(messages);
+  const response = await llm.invoke(messages);
 
-    if ("content" in response) {
-        try {
-            console.log("Response from Gemini:", response.content);
-            const result = JsonParser.parseStudyNotes(response);
-            if (result.error) {
-                console.error("Error parsing JSON:", result.error);
-                throw new Error(result.error);
-            }
-            if (!result.data) {
-                throw new Error("No data returned from JSON parser");
-            }
-            return result.data;
-        } catch (err) {
-            console.error("Failed to parse JSON:", response.content);
-            throw new Error("Invalid JSON returned");
-        }
+  if ("content" in response) {
+    try {
+      console.log("Response from Gemini:", response.content);
+      const result = JsonParser.parseStudyNotes(response);
+      if (result.error) {
+        console.error("Error parsing JSON:", result.error);
+        throw new Error(result.error);
+      }
+      if (!result.data) {
+        throw new Error("No data returned from JSON parser");
+      }
+      return result.data;
+    } catch (error) {
+      console.error("Failed to parse JSON:", response.content, error);
+      throw new Error("Invalid JSON returned");
     }
+  }
 
-    throw new Error("No content returned from Gemini.");
+  throw new Error("No content returned from Gemini.");
 }

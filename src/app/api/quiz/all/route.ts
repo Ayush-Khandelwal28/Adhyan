@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { QuizData } from '@/lib/types';
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -20,7 +21,7 @@ export async function GET(req: Request) {
       orderBy: { createdAt: 'desc' },
     });
 
-    const quizData = quizzes.map((quiz) => {
+    const quizData: QuizData[] = quizzes.map((quiz: any) => {
       const totalAttempts = quiz.quizAttempts.length;
       const lastAttempt = quiz.quizAttempts[0];
 

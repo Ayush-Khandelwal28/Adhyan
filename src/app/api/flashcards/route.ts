@@ -33,24 +33,24 @@ export async function GET(request: Request) {
     }
 
     const isFlashcardsAvailable = studyPackFlashcards.flashcardsJson ? true : false;
-    
+
     let flashcardAvailabilityJson: FlashcardAvailability;
     try {
         flashcardAvailabilityJson = typeof studyPackFlashcards.flashcardAvailabilityJson === 'string'
             ? JSON.parse(studyPackFlashcards.flashcardAvailabilityJson)
             : studyPackFlashcards.flashcardAvailabilityJson;
     } catch (error) {
-        return NextResponse.json({ error: 'Invalid flashcard availability format' }, { status: 500 });
+        return NextResponse.json({ error: (error instanceof Error ? error.message : 'Invalid flashcard availability format') }, { status: 500 });
     }
 
     let flashcardsJson;
-    if(isFlashcardsAvailable){
+    if (isFlashcardsAvailable) {
         try {
             flashcardsJson = typeof studyPackFlashcards.flashcardsJson === 'string'
                 ? JSON.parse(studyPackFlashcards.flashcardsJson)
                 : studyPackFlashcards.flashcardsJson;
         } catch (error) {
-            return NextResponse.json({ error: 'Invalid flashcards format' }, { status: 500 });
+            return NextResponse.json({ error: (error instanceof Error ? error.message : 'Invalid flashcards format') }, { status: 500 });
         }
     }
 

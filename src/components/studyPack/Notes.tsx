@@ -3,7 +3,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, FileText, Lightbulb, Link, Star } from 'lucide-react';
 import { StudyNotesStructure } from '@/lib/types';
-import { cn } from '@/lib/utils';
 
 interface NotesContentProps {
   studyNotes: StudyNotesStructure;

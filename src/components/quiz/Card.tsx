@@ -2,17 +2,15 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  HelpCircle, 
-  CheckCircle, 
-  Clock, 
-  Calendar, 
+import {
+  HelpCircle,
+  CheckCircle,
+  Calendar,
   Target,
-  TrendingUp,
   Play,
   BarChart3
 } from 'lucide-react';
-import { QuizData } from '@/lib/types'; 
+import { QuizData } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
@@ -29,13 +27,6 @@ export const QuizCard: React.FC<QuizCardProps> = ({ quiz, onStartQuiz }) => {
       day: 'numeric',
       year: 'numeric'
     });
-  };
-
-  const formatTime = (minutes: number) => {
-    if (minutes < 60) return `${minutes}m`;
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins}m`;
   };
 
   const getTypeIcon = (type: string) => {
@@ -104,11 +95,11 @@ export const QuizCard: React.FC<QuizCardProps> = ({ quiz, onStartQuiz }) => {
             {formatDate(quiz.createdAt)}
           </div>
         </div>
-        
+
         <CardTitle className="text-lg font-bold line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
           {quiz.title}
         </CardTitle>
-        
+
         <div className="flex items-center space-x-4 text-sm text-muted-foreground">
           <div className="flex items-center space-x-1">
             <Target className="h-3 w-3" />
@@ -116,7 +107,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({ quiz, onStartQuiz }) => {
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-3">
@@ -126,7 +117,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({ quiz, onStartQuiz }) => {
             </div>
             <div className="text-xs text-muted-foreground">Attempts</div>
           </div>
-          
+
           <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 text-center">
             <div className={cn("text-lg font-bold", getScoreColor(quiz.lastScore))}>
               {quiz.lastScore ? `${quiz.lastScore}/${quiz.questionCount}` : 'N/A'}
@@ -142,7 +133,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({ quiz, onStartQuiz }) => {
         </div>
 
         {/* Action Button */}
-        <Button 
+        <Button
           onClick={() => onStartQuiz(quiz.id)}
           className="w-full flex items-center justify-center space-x-2 mt-4"
         >

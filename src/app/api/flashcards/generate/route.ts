@@ -62,7 +62,7 @@ export async function POST(request: Request) {
                 ? JSON.parse(studyPack.notesJson)
                 : studyPack.notesJson;
         } catch (error) {
-            return NextResponse.json({ error: 'Invalid notes data format' }, { status: 500 });
+            return NextResponse.json({ error: error instanceof Error ? error.message : 'Invalid notes data format' }, { status: 500 });
         }
 
         const flashcards = [];
@@ -70,25 +70,16 @@ export async function POST(request: Request) {
         if (definition) {
             console.log('Generating definition flashcards');
             const definitionFlashcards = generateDefinitionFlashcards(parsedNotesJson);
-            if (!definitionFlashcards || definitionFlashcards.length === 0) {
-                return NextResponse.json({ error: 'No definition flashcards created' }, { status: 400 });
-            }
             flashcards.push({ type: 'definition', flashcards: definitionFlashcards });
         }
 
         if (recall) {
             const recallFlashcards = await generateRecallFlashcards(parsedNotesJson);
-            if (!recallFlashcards || recallFlashcards.length === 0) {
-                return NextResponse.json({ error: 'No recall flashcards created' }, { status: 400 });
-            }
             flashcards.push({ type: 'recall', flashcards: recallFlashcards });
         }
 
         if (application) {
             const applicationFlashcards = await getApplicationFlashcards(parsedNotesJson);
-            if (!applicationFlashcards || applicationFlashcards.length === 0) {
-                return NextResponse.json({ error: 'No application flashcards created' }, { status: 400 });
-            }
             flashcards.push({ type: 'application', flashcards: applicationFlashcards });
         }
 

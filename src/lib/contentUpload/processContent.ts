@@ -1,5 +1,3 @@
-import { extractText, getDocumentProxy } from 'unpdf'
-
 interface ChunkingOptions {
     preserveSentences?: boolean;
     minChunkSize?: number;

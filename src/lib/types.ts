@@ -1,5 +1,3 @@
-import NextAuth from "next-auth";
-
 export interface StudyNotesStructure {
   title: string;
   sections: StudyNotesSection[];
@@ -24,7 +22,7 @@ export interface StudyNotesSubsection {
   connections?: string[];
 }
 
-export interface ParseResult<T = any> {
+export interface ParseResult<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -75,12 +73,6 @@ export interface ApplicationContentItem {
 export interface ApplicationContentCollection {
   items: ApplicationContentItem[];
   totalCount: number;
-  breakdown: {
-    sectionExamples: { section: string; count: number }[];
-    sectionConnections: { section: string; count: number }[];
-    subsectionExamples: { section: string; subsection: string; count: number }[];
-    subsectionConnections: { section: string; subsection: string; count: number }[];
-  };
 }
 
 export interface QuizContentConfig {
@@ -309,7 +301,7 @@ export interface MindMapNodeData {
   isExpanded: boolean;
   childrenIds: string[];
   parentId?: string;
-  originalData?: any;
+  originalData?: MindMapNode | MindMapBranch;
   nodeKey: string;
   hasExpandableChildren: boolean;
   angle?: number;

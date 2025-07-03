@@ -9,19 +9,14 @@ export function analyzeFlashcardEligibility(notes: StudyNotesStructure): {
 
     // Process main sections
     for (const section of notes.sections) {
-        let sectionDefinitions = 0;
-        let sectionRecall = 0;
-        let sectionApplication = 0;
 
         // Count definitions
         if (section.definitions?.length) {
-            sectionDefinitions += section.definitions.length;
             definitionCount += section.definitions.length;
         }
 
         // Count recall items (points only, not subsections themselves)
         if (section.points?.length) {
-            sectionRecall += section.points.length;
             recallCount += section.points.length;
         }
 
@@ -29,7 +24,6 @@ export function analyzeFlashcardEligibility(notes: StudyNotesStructure): {
         const sectionExamples = section.examples?.length || 0;
         const sectionConnections = section.connections?.length || 0;
         const sectionAppItems = sectionExamples + sectionConnections;
-        sectionApplication += sectionAppItems;
         applicationCount += sectionAppItems;
 
         // Process subsections
@@ -37,13 +31,11 @@ export function analyzeFlashcardEligibility(notes: StudyNotesStructure): {
             for (const subsection of section.subsections) {
                 // Definitions in subsections
                 if (subsection.definitions?.length) {
-                    sectionDefinitions += subsection.definitions.length;
                     definitionCount += subsection.definitions.length;
                 }
 
                 // Points in subsections (actual recall content)
                 if (subsection.points?.length) {
-                    sectionRecall += subsection.points.length;
                     recallCount += subsection.points.length;
                 }
 
@@ -51,7 +43,6 @@ export function analyzeFlashcardEligibility(notes: StudyNotesStructure): {
                 const subExamples = subsection.examples?.length || 0;
                 const subConnections = subsection.connections?.length || 0;
                 const subAppItems = subExamples + subConnections;
-                sectionApplication += subAppItems;
                 applicationCount += subAppItems;
             }
         }

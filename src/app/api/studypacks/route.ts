@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getCurrentUserId } from '@/lib/auth/getCurrentUser';
+import { StudyPack } from '@/lib/types';
 
 export async function GET() {
     const userId = await getCurrentUserId();
@@ -21,7 +22,7 @@ export async function GET() {
         },
     });
 
-    const formatted = studyPacks.map((pack) => ({
+    const formatted: StudyPack[] = studyPacks.map((pack: any) => ({
         id: pack.id,
         title: pack.title,
         createdAt: pack.createdAt.toISOString(),

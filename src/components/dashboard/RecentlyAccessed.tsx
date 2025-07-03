@@ -1,10 +1,10 @@
 'use client';
 
-import { Clock, FileText, Youtube, Type } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { StudyPack } from '@/lib/types';
-import { formatLastAccessed, getTypeColor } from '@/lib/utils';
+import { formatLastAccessed } from '@/lib/utils';
 import { CONTENT_TYPES } from '@/lib/constants';
 import { ContentTypeIcon } from '../ContentTypeIcon';
 import { isValidContentType } from '@/lib/utils';

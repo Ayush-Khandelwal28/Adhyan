@@ -3,10 +3,11 @@ import prisma from '@/lib/prisma';
 import { getCurrentUserId } from '@/lib/auth/getCurrentUser';
 import { StudyPackData, StudyNotesStructure } from '@/lib/types';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request,
+    { params }: { params: Promise<{ id: string }> },
+) {
+    const id = (await params).id;
     const userId = await getCurrentUserId();
-
-    const { id } = await params;
 
     if (!userId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -38,7 +39,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
             ? JSON.parse(studyPack.notesJson)
             : studyPack.notesJson;
     } catch (error) {
-        return NextResponse.json({ error: 'Invalid notes data format' }, { status: 500 });
+        return NextResponse.json({ error: (error instanceof Error ? error.message : 'Invalid notes data format') }, { status: 500 });
     }
 
     const formattedStudyPack: StudyPackData = {

@@ -1,17 +1,10 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("LOCAL_DATABASE_URL")
+  url      = env("NEON_DATABASE_URL")
 }
 
 model User {
@@ -22,58 +15,51 @@ model User {
   image        String?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  studyPacks   StudyPack[]
   quizAttempts QuizAttempt[]
+  studyPacks   StudyPack[]
 }
 
 model StudyPack {
-  id     String @id @default(cuid())
-  user   User   @relation(fields: [userId], references: [id])
-  userId String
-
-  title      String
-  sourceType String
-  sourceUrl  String?
-
+  id                        String    @id @default(cuid())
+  userId                    String
+  title                     String
+  sourceType                String
+  sourceUrl                 String?
   notesJson                 Json
   flashcardsJson            Json?
   mindmapJson               Json?
   flashcardAvailabilityJson Json?
-
-  quizzes Quiz[]
-
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  lastAccessedAt DateTime?
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+  lastAccessedAt            DateTime?
+  quizzes                   Quiz[]
+  user                      User      @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([lastAccessedAt])
 }
 
 model Quiz {
-  id          String    @id @default(cuid())
-  studyPack   StudyPack @relation(fields: [studyPackId], references: [id])
-  studyPackId String
-
-  title      String
-  type       String 
-  difficulty String 
+  id            String        @id @default(cuid())
+  studyPackId   String
+  title         String
+  type          String
+  difficulty    String
+  createdAt     DateTime      @default(now())
+  questions     Json
   questionCount Int
-  createdAt  DateTime @default(now())
-  questions  Json 
-
-  quizAttempts QuizAttempt[]
+  studyPack     StudyPack     @relation(fields: [studyPackId], references: [id])
+  quizAttempts  QuizAttempt[]
 
   @@index([studyPackId])
 }
 
 model QuizAttempt {
-  id     String @id @default(cuid())
-  user   User   @relation(fields: [userId], references: [id])
-  userId String
-  quiz   Quiz   @relation(fields: [quizId], references: [id])
-  quizId String
-
+  id          String   @id @default(cuid())
+  userId      String
+  quizId      String
   score       Float
   attemptedAt DateTime @default(now())
+  quiz        Quiz     @relation(fields: [quizId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
 }

@@ -6,8 +6,7 @@ export function getRecallContent(notes: StudyNotesStructure): RecallContentColle
     const items: RecallContentItem[] = [];
 
     // Process main sections
-    for (const [sectionIndex, section] of notes.sections.entries()) {
-        let sectionPointCount = 0;
+    for (const [, section] of notes.sections.entries()) {
 
         // Extract points from main section
         if (section.points?.length) {
@@ -21,14 +20,12 @@ export function getRecallContent(notes: StudyNotesStructure): RecallContentColle
                     },
                     context: `From section: ${section.heading}`,
                 });
-                sectionPointCount++;
             }
         }
 
         // Process subsections
         if (section.subsections?.length) {
-            for (const [subsectionIndex, subsection] of section.subsections.entries()) {
-                let subsectionPointCount = 0;
+            for (const [, subsection] of section.subsections.entries()) {
 
                 if (subsection.points?.length) {
                     for (const [pointIndex, point] of subsection.points.entries()) {
@@ -42,7 +39,6 @@ export function getRecallContent(notes: StudyNotesStructure): RecallContentColle
                             },
                             context: `From ${section.heading} → ${subsection.subheading}`,
                         });
-                        subsectionPointCount++;
                     }
                 }
             }

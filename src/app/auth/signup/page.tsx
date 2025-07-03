@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
 import { Brain, Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -8,45 +7,56 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-// import { Separator } from '@/components/ui/separator';
-// import { Checkbox } from '@/components/ui/checkbox';
+import { useRouter } from 'next/navigation';
+
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: ''
   });
-  // const [acceptTerms, setAcceptTerms] = useState(false);
+
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Sign up attempt:', formData);
-    const response = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(formData)
-    });
+    setIsLoading(true);
+    
+    try {
+      console.log('Sign up attempt:', formData);
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
 
-    if (response.status === 201) {
-      const data = await response.json();
-      console.log('Sign up successful:', data);
-    }
+      if (response.status === 201) {
+        const data = await response.json();
+        console.log('Sign up successful:', data);
+        router.push('/auth/signin');
+      }
 
-    if (response.status === 400) {
-      const errorData = await response.json();
-      console.error('Sign up failed:', errorData.message);
-      alert(errorData.error || 'Sign up failed');
-    }
+      if (response.status === 400) {
+        const errorData = await response.json();
+        console.error('Sign up failed:', errorData.message);
+        alert(errorData.error || 'Sign up failed');
+      }
 
-    if (response.status === 500) {
-      console.error('Server error during sign up');
+      if (response.status === 500) {
+        console.error('Server error during sign up');
+        alert('An unexpected error occurred. Please try again later.');
+      }
+    } catch (error) {
+      console.error('Network error during sign up:', error);
       alert('An unexpected error occurred. Please try again later.');
+    } finally {
+      setIsLoading(false);
     }
-
   };
 
   // const handleGoogleSignUp = () => {
@@ -59,10 +69,10 @@ export default function SignUp() {
       <div className="w-full max-w-md">
         {/* Header with Logo and Theme Toggle */}
         <div className="flex items-center justify-between mb-8">
-          <Link href="/" className="inline-flex items-center space-x-2 text-2xl font-bold text-gray-900 dark:text-white">
+          <button onClick={() => router.push('/')} className="inline-flex items-center space-x-2 text-2xl font-bold text-gray-900 dark:text-white">
             <Brain className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-            <span>StudyAI</span>
-          </Link>
+            <span>Adhyan</span>
+          </button>
           <ThemeToggle />
         </div>
 
@@ -74,7 +84,7 @@ export default function SignUp() {
               Join thousands of students learning smarter
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Name Input */}
@@ -151,12 +161,19 @@ export default function SignUp() {
               </div>
 
               {/* Sign Up Button */}
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full h-12 text-base font-semibold"
-                // disabled={!acceptTerms}
+                disabled={isLoading}
               >
-                Create Account
+                {isLoading ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Creating Account...</span>
+                  </div>
+                ) : (
+                  'Create Account'
+                )}
               </Button>
             </form>
 
@@ -200,12 +217,12 @@ export default function SignUp() {
             {/* Sign In Link */}
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{' '}
-              <Link 
-                href="/auth/signin" 
+              <button
+                onClick={() => router.push('/auth/signin')}
                 className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
               >
                 Sign in
-              </Link>
+              </button>
             </p>
           </CardContent>
         </Card>

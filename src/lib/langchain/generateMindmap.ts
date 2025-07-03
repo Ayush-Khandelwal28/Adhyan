@@ -127,8 +127,8 @@ Return only the JSON object, no extra text.`
         throw new Error(result.error || "Invalid mindmap structure returned");
       }
       return result.data;
-    } catch (err) {
-      console.error("Failed to parse JSON:", response.content);
+    } catch (error) {
+      console.error("Failed to parse JSON:", response.content, error);
       throw new Error("Invalid JSON returned");
     }
   }

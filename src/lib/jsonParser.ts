@@ -1,9 +1,9 @@
 import { MindMapStructure, ParseResult, StudyNotesStructure, Flashcard, MCQQuestion, TrueFalseQuestion } from './types';
 
 export class JsonParser {
-  
-   // Main method to parse and fix JSON from AI responses
-   
+
+  // Main method to parse and fix JSON from AI responses
+
   static parseAIResponse<T = any>(response: any): ParseResult<T> {
     try {
       // Extract content string from various response formats
@@ -30,21 +30,15 @@ export class JsonParser {
     }
   }
 
-  
-   // Extract content string from various response formats
-   
+
+  // Extract content string from various response formats
+
   private static extractContentString(response: any): string {
     if (typeof response === 'string') {
       return response;
     }
 
     if ("content" in response) {
-      if (Array.isArray(response.content)) {
-        interface ContentItem {
-          text?: string;
-          [key: string]: any;
-        }
-      }
       return String(response.content);
     }
 
@@ -59,9 +53,9 @@ export class JsonParser {
     return String(response);
   }
 
-  
-   // Parse JSON with progressive fixes
-   
+
+  // Parse JSON with progressive fixes
+
   private static parseWithFixes<T>(content: string): ParseResult<T> {
     const fixes: string[] = [];
     let cleanedContent = content;
@@ -73,7 +67,7 @@ export class JsonParser {
         data: JSON.parse(cleanedContent),
         fixes_applied: fixes
       };
-    } catch (error) {
+    } catch {
       // Apply fixes progressively
       cleanedContent = this.removeMarkdownFormatting(cleanedContent);
       if (cleanedContent !== content) fixes.push("Removed markdown formatting");
@@ -84,7 +78,7 @@ export class JsonParser {
           data: JSON.parse(cleanedContent),
           fixes_applied: fixes
         };
-      } catch (error) {
+      } catch {
         cleanedContent = this.extractJsonFromText(cleanedContent);
         if (cleanedContent !== content) fixes.push("Extracted JSON from text");
 
@@ -94,7 +88,7 @@ export class JsonParser {
             data: JSON.parse(cleanedContent),
             fixes_applied: fixes
           };
-        } catch (error) {
+        } catch {
           cleanedContent = this.fixCommonJsonErrors(cleanedContent);
           fixes.push("Fixed common JSON syntax errors");
 
@@ -104,7 +98,7 @@ export class JsonParser {
               data: JSON.parse(cleanedContent),
               fixes_applied: fixes
             };
-          } catch (error) {
+          } catch {
             // Final attempt with aggressive fixes
             cleanedContent = this.aggressiveJsonFix(cleanedContent);
             fixes.push("Applied aggressive JSON fixes");
@@ -129,9 +123,9 @@ export class JsonParser {
     }
   }
 
-  
-   // Remove markdown code block formatting
-   
+
+  // Remove markdown code block formatting
+
   private static removeMarkdownFormatting(content: string): string {
     return content
       // Remove ```json and ``` blocks
@@ -143,9 +137,9 @@ export class JsonParser {
       .trim();
   }
 
-  
-   // Extract JSON object from text that may contain extra content
-   
+
+  // Extract JSON object from text that may contain extra content
+
   private static extractJsonFromText(content: string): string {
     // Look for JSON object boundaries
     const jsonStart = content.indexOf('{');
@@ -166,9 +160,9 @@ export class JsonParser {
     return content;
   }
 
-  
-   // Fix common JSON syntax errors
-   
+
+  // Fix common JSON syntax errors
+
   private static fixCommonJsonErrors(content: string): string {
     return content
       // Fix trailing commas
@@ -188,9 +182,9 @@ export class JsonParser {
       .replace(/\t/g, '\\t');
   }
 
-  
-   // Aggressive JSON fixes as last resort
-   
+
+  // Aggressive JSON fixes as last resort
+
   private static aggressiveJsonFix(content: string): string {
     try {
       // Remove any text before first { or [ and after last } or ]
@@ -224,14 +218,14 @@ export class JsonParser {
       jsonContent = this.fixArrayStructures(jsonContent);
 
       return jsonContent;
-    } catch (error) {
+    } catch {
       return content;
     }
   }
 
-  
-   // Balance braces and brackets
-   
+
+  // Balance braces and brackets
+
   private static balanceBraces(content: string): string {
     const stack: string[] = [];
     let result = '';
@@ -263,9 +257,9 @@ export class JsonParser {
     return result;
   }
 
-  
-   // Fix array structures
-   
+
+  // Fix array structures
+
   private static fixArrayStructures(content: string): string {
     return content
       // Ensure arrays have proper comma separation
@@ -284,9 +278,9 @@ export class JsonParser {
       .replace(/("subsections":\s*\[[\s\S]*?)"connections":\s*"([^"]+)"/g, '$1"connections": ["$2"]');
   }
 
-  
-   // Validate flashcard structure
-   
+
+  // Validate flashcard structure
+
   private static validateFlashcard(flashcard: any, index: number): string[] {
     const errors: string[] = [];
 
@@ -315,9 +309,9 @@ export class JsonParser {
     return errors;
   }
 
-  
-   // Validate flashcards array structure
-   
+
+  // Validate flashcards array structure
+
   static validateFlashcardsStructure(data: any): ParseResult<Flashcard[]> {
     try {
       const errors: string[] = [];
@@ -329,10 +323,6 @@ export class JsonParser {
           error: errors.join(', '),
           data: data
         };
-      }
-
-      if (data.length === 0) {
-        errors.push('Flashcards array cannot be empty');
       }
 
       data.forEach((flashcard: any, index: number) => {
@@ -361,9 +351,9 @@ export class JsonParser {
     }
   }
 
-  
-   // Convenience method specifically for flashcards
-   
+
+  // Convenience method specifically for flashcards
+
   static parseFlashcards(response: any): ParseResult<Flashcard[]> {
     const parseResult = this.parseAIResponse<Flashcard[]>(response);
 
@@ -374,9 +364,9 @@ export class JsonParser {
     return this.validateFlashcardsStructure(parseResult.data);
   }
 
-  
-   // Validate subsection structure
-   
+
+  // Validate subsection structure
+
   private static validateSubsection(subsection: any, sectionIndex: number, subsectionIndex: number): string[] {
     const errors: string[] = [];
 
@@ -398,9 +388,9 @@ export class JsonParser {
     return errors;
   }
 
-  
-   // Validate study notes structure specifically
-   
+
+  // Validate study notes structure specifically
+
   static validateStudyNotesStructure(data: any): ParseResult<StudyNotesStructure> {
     try {
       const errors: string[] = [];
@@ -475,9 +465,9 @@ export class JsonParser {
     }
   }
 
-  
-   // Convenience method specifically for study notes
-   
+
+  // Convenience method specifically for study notes
+
   static parseStudyNotes(response: any): ParseResult<StudyNotesStructure> {
     const parseResult = this.parseAIResponse<StudyNotesStructure>(response);
 
@@ -489,9 +479,9 @@ export class JsonParser {
   }
 
 
-  
-   // Validate MCQ option structure
-   
+
+  // Validate MCQ option structure
+
   private static validateMCQOption(option: any, questionIndex: number, optionIndex: number): string[] {
     const errors: string[] = [];
 
@@ -515,9 +505,9 @@ export class JsonParser {
     return errors;
   }
 
-  
-   // Validate MCQ question structure
-   
+
+  // Validate MCQ question structure
+
   private static validateMCQQuestion(question: any, index: number): string[] {
     const errors: string[] = [];
 
@@ -564,9 +554,9 @@ export class JsonParser {
     return errors;
   }
 
-  
-   // Validate True/False question structure
-   
+
+  // Validate True/False question structure
+
   private static validateTrueFalseQuestion(question: any, index: number): string[] {
     const errors: string[] = [];
 
@@ -596,9 +586,9 @@ export class JsonParser {
     return errors;
   }
 
-  
-   // Validate MCQ quiz structure
-   
+
+  // Validate MCQ quiz structure
+
   static validateMCQQuizStructure(data: any): ParseResult<MCQQuestion[]> {
     try {
       const errors: string[] = [];
@@ -642,9 +632,9 @@ export class JsonParser {
     }
   }
 
-  
-   // Validate True/False quiz structure
-   
+
+  // Validate True/False quiz structure
+
   static validateTrueFalseQuizStructure(data: any): ParseResult<TrueFalseQuestion[]> {
     try {
       const errors: string[] = [];
@@ -697,9 +687,9 @@ export class JsonParser {
     }
   }
 
-  
-   // Validate node structure
-   
+
+  // Validate node structure
+
   private static validateNode(node: any, index: number, parentContext: string): string[] {
     const errors: string[] = [];
 
@@ -712,13 +702,13 @@ export class JsonParser {
       errors.push(`${parentContext}, Node ${index}: Missing or invalid 'label' field`);
     }
 
-    if (!node.node_type || typeof node.node_type !== 'string' || 
-        !['concept', 'detail', 'example'].includes(node.node_type)) {
+    if (!node.node_type || typeof node.node_type !== 'string' ||
+      !['concept', 'detail', 'example'].includes(node.node_type)) {
       errors.push(`${parentContext}, Node ${index}: Invalid 'node_type' field (must be 'concept', 'detail', or 'example')`);
     }
 
-    if (!node.emphasis_level || typeof node.emphasis_level !== 'string' || 
-        !['high', 'medium', 'low'].includes(node.emphasis_level)) {
+    if (!node.emphasis_level || typeof node.emphasis_level !== 'string' ||
+      !['high', 'medium', 'low'].includes(node.emphasis_level)) {
       errors.push(`${parentContext}, Node ${index}: Invalid 'emphasis_level' field (must be 'high', 'medium', or 'low')`);
     }
 
@@ -737,9 +727,9 @@ export class JsonParser {
     return errors;
   }
 
-  
-   // Validate branch structure
-   
+
+  // Validate branch structure
+
   private static validateBranch(branch: any, index: number): string[] {
     const errors: string[] = [];
 
@@ -764,9 +754,9 @@ export class JsonParser {
     return errors;
   }
 
-  
-   // Validate mind map structure
-   
+
+  // Validate mind map structure
+
   static validateMindMapStructure(data: any): ParseResult<MindMapStructure> {
     try {
       const errors: string[] = [];
@@ -814,9 +804,9 @@ export class JsonParser {
     }
   }
 
-  
-   // Convenience method specifically for mind maps
-   
+
+  // Convenience method specifically for mind maps
+
   static parseMindMap(response: any): ParseResult<MindMapStructure> {
     const parseResult = this.parseAIResponse<MindMapStructure>(response);
 
@@ -826,12 +816,42 @@ export class JsonParser {
 
     return this.validateMindMapStructure(parseResult.data);
   }
+
+
+  // Convenience method specifically for MCQ quizzes
+
+  static parseMCQQuiz(response: any): ParseResult<MCQQuestion[]> {
+    const parseResult = this.parseAIResponse<MCQQuestion[]>(response);
+
+    if (!parseResult.success) {
+      return parseResult;
+    }
+
+    return this.validateMCQQuizStructure(parseResult.data);
+  }
+
+
+  // Convenience method specifically for True/False quizzes
+
+  static parseTrueFalseQuiz(response: any): ParseResult<TrueFalseQuestion[]> {
+    const parseResult = this.parseAIResponse<TrueFalseQuestion[]>(response);
+
+    if (!parseResult.success) {
+      return parseResult;
+    }
+
+    return this.validateTrueFalseQuizStructure(parseResult.data);
+  }
 }
 
 // Export convenience functions as bound methods
 export const parseAIResponse = JsonParser.parseAIResponse.bind(JsonParser);
 export const parseStudyNotes = JsonParser.parseStudyNotes.bind(JsonParser);
 export const parseFlashcards = JsonParser.parseFlashcards.bind(JsonParser);
+export const parseMCQQuiz = JsonParser.parseMCQQuiz.bind(JsonParser);
+export const parseTrueFalseQuiz = JsonParser.parseTrueFalseQuiz.bind(JsonParser);
 export const validateStudyNotesStructure = JsonParser.validateStudyNotesStructure.bind(JsonParser);
 export const validateFlashcardsStructure = JsonParser.validateFlashcardsStructure.bind(JsonParser);
+export const validateMCQQuizStructure = JsonParser.validateMCQQuizStructure.bind(JsonParser);
+export const validateTrueFalseQuizStructure = JsonParser.validateTrueFalseQuizStructure.bind(JsonParser);
 export const parseMindMap = JsonParser.parseMindMap.bind(JsonParser);

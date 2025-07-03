@@ -84,14 +84,14 @@ export async function POST(request: NextRequest) {
 
         console.log('Study Pack created:', notesUpload);
 
-        if(!notesUpload) {
+        if (!notesUpload) {
             return NextResponse.json({ error: 'Failed to create study pack' }, { status: 500 });
         }
 
         return NextResponse.json({ message: 'Upload successful', data: notes, flashcardAvailability: availability }, { status: 200 });
     } catch (error) {
         return NextResponse.json(
-            { error: 'Failed to upload Content' },
+            { error: (error instanceof Error ? error.message : 'Failed to upload Content') },
             { status: 500 }
         );
     }

@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar, Clock, FileText } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock } from 'lucide-react';
 import { StudyPackData } from '@/lib/types';
 
 interface StudyPackHeaderProps {
@@ -40,7 +40,7 @@ export const StudyPackHeader: React.FC<StudyPackHeaderProps> = ({ studyPack }) =
               </Button>
             </Link>
           </div>
-          
+
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">
             {studyPack.title}
           </h1>

@@ -15,6 +15,12 @@ export default async function generateFlashcards(
     type: FlashcardType,
     content: RecallContentItem[] | ApplicationContentItem[]
 ): Promise<Flashcard[]> {
+
+    if (!content || content.length === 0) {
+        console.log(`No ${type} content provided, returning empty array`);
+        return [];
+    }
+
     const formatted = content.map((item, i) => ({
         content: item.content,
         context: item.context ?? '',
@@ -47,8 +53,10 @@ Return only the JSON array, no extra text.`
 
     if ("content" in response) {
         try {
+            console.log("For type:", type);
             console.log("Response from Gemini:", response.content);
             const result = JsonParser.parseFlashcards(response);
+            console.log("Parse result:", JSON.stringify(result, null, 2));
             if (result.error) {
                 console.error("Error parsing JSON:", result.error);
                 throw new Error(result.error);
@@ -61,8 +69,8 @@ Return only the JSON array, no extra text.`
                 type
             }));
             return flashcards;
-        } catch (err) {
-            console.error("Failed to parse JSON:", response.content);
+        } catch (error) {
+            console.error("Failed to parse JSON:", response.content, error);
             throw new Error("Invalid JSON returned");
         }
     }

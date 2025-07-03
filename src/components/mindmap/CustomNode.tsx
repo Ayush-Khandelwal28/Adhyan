@@ -1,6 +1,6 @@
 import React from 'react';
 import { Handle, Position } from 'reactflow';
-import { BookOpen, FileText, Lightbulb, Plus, Minus, Star, Target, Zap } from 'lucide-react';
+import { BookOpen, FileText, Lightbulb, Plus, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { MindMapNodeData } from '@/lib/types';
@@ -10,7 +10,7 @@ interface CustomNodeProps {
   id: string;
 }
 
-export const CustomNode: React.FC<CustomNodeProps> = ({ data, id }) => {
+export const CustomNode: React.FC<CustomNodeProps> = ({ data }) => {
 
   const getNodeClasses = () => {
     const baseClasses = "px-3 py-2 md:px-4 md:py-3 rounded-lg border-2 shadow-lg cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-105 relative min-w-32 md:min-w-40 lg:min-w-48";
@@ -90,15 +90,15 @@ export const CustomNode: React.FC<CustomNodeProps> = ({ data, id }) => {
   const getHandlePositions = () => {
     // Get the angle from the node's position data if available
     const angle = data.angle || 0;
-    
+
     // For input handle (connection from parent)
     let inputPosition = Position.Top;
     let outputPosition = Position.Bottom;
-    
+
     // Convert angle to degrees for easier calculation
     const degrees = (angle * 180) / Math.PI;
     const normalizedDegrees = ((degrees % 360) + 360) % 360;
-    
+
     // The angle represents the direction TO the parent, so input handle should be on that side
     if (normalizedDegrees >= 315 || normalizedDegrees < 45) {
       inputPosition = Position.Right; // Parent is to the right
@@ -109,7 +109,7 @@ export const CustomNode: React.FC<CustomNodeProps> = ({ data, id }) => {
     } else {
       inputPosition = Position.Top; // Parent is above
     }
-    
+
     // Output handle should be opposite to input for better flow
     switch (inputPosition) {
       case Position.Left:
@@ -125,21 +125,21 @@ export const CustomNode: React.FC<CustomNodeProps> = ({ data, id }) => {
         outputPosition = Position.Top;
         break;
     }
-    
+
     return { inputPosition, outputPosition };
   };
 
   // For central node, create multiple output handles based on children positions
   const renderCentralOutputHandles = () => {
     if (data.type !== 'central' || !data.childrenAngles) return null;
-    
+
     return data.childrenAngles.map((childAngle: number, index: number) => {
       const degrees = (childAngle * 180) / Math.PI;
       const normalizedDegrees = ((degrees % 360) + 360) % 360;
-      
+
       let position = Position.Right;
       let style = {};
-      
+
       if (normalizedDegrees >= 315 || normalizedDegrees < 45) {
         position = Position.Right;
         style = { top: '50%', right: '-4px' };
@@ -153,7 +153,7 @@ export const CustomNode: React.FC<CustomNodeProps> = ({ data, id }) => {
         position = Position.Top;
         style = { top: '-4px', left: '50%' };
       }
-      
+
       return (
         <Handle
           key={`output-${index}`}

@@ -4,17 +4,9 @@ import generateFlashcards from '../langchain/generateFlashCards';
 
 export function getApplicationContent(notes: StudyNotesStructure): ApplicationContentCollection {
     const items: ApplicationContentItem[] = [];
-    const breakdown = {
-        sectionExamples: [] as { section: string; count: number }[],
-        sectionConnections: [] as { section: string; count: number }[],
-        subsectionExamples: [] as { section: string; subsection: string; count: number }[],
-        subsectionConnections: [] as { section: string; subsection: string; count: number }[],
-    };
 
     // Process main sections
-    for (const [sectionIndex, section] of notes.sections.entries()) {
-        let sectionExampleCount = 0;
-        let sectionConnectionCount = 0;
+    for (const [, section] of notes.sections.entries()) {
 
         // Extract examples from main section
         if (section.examples?.length) {
@@ -27,9 +19,8 @@ export function getApplicationContent(notes: StudyNotesStructure): ApplicationCo
                         index: exampleIndex,
                     },
                     context: `Example from section: ${section.heading}`,
-                    relatedConcepts: extractRelatedConcepts(section, example),
+                    relatedConcepts: extractRelatedConcepts(section),
                 });
-                sectionExampleCount++;
             }
         }
 
@@ -44,17 +35,14 @@ export function getApplicationContent(notes: StudyNotesStructure): ApplicationCo
                         index: connectionIndex,
                     },
                     context: `Connection from section: ${section.heading}`,
-                    relatedConcepts: extractRelatedConcepts(section, connection),
+                    relatedConcepts: extractRelatedConcepts(section),
                 });
-                sectionConnectionCount++;
             }
         }
 
         // Process subsections
         if (section.subsections?.length) {
-            for (const [subsectionIndex, subsection] of section.subsections.entries()) {
-                let subsectionExampleCount = 0;
-                let subsectionConnectionCount = 0;
+            for (const [, subsection] of section.subsections.entries()) {
 
                 // Examples in subsections
                 if (subsection.examples?.length) {
@@ -68,9 +56,8 @@ export function getApplicationContent(notes: StudyNotesStructure): ApplicationCo
                                 index: exampleIndex,
                             },
                             context: `Example from ${section.heading} → ${subsection.subheading}`,
-                            relatedConcepts: extractRelatedConcepts(subsection, example),
+                            relatedConcepts: extractRelatedConcepts(subsection),
                         });
-                        subsectionExampleCount++;
                     }
                 }
 
@@ -86,55 +73,23 @@ export function getApplicationContent(notes: StudyNotesStructure): ApplicationCo
                                 index: connectionIndex,
                             },
                             context: `Connection from ${section.heading} → ${subsection.subheading}`,
-                            relatedConcepts: extractRelatedConcepts(subsection, connection),
+                            relatedConcepts: extractRelatedConcepts(subsection),
                         });
-                        subsectionConnectionCount++;
                     }
                 }
-
-                if (subsectionExampleCount > 0) {
-                    breakdown.subsectionExamples.push({
-                        section: section.heading,
-                        subsection: subsection.subheading,
-                        count: subsectionExampleCount,
-                    });
-                }
-
-                if (subsectionConnectionCount > 0) {
-                    breakdown.subsectionConnections.push({
-                        section: section.heading,
-                        subsection: subsection.subheading,
-                        count: subsectionConnectionCount,
-                    });
-                }
             }
-        }
-
-        if (sectionExampleCount > 0) {
-            breakdown.sectionExamples.push({
-                section: section.heading,
-                count: sectionExampleCount,
-            });
-        }
-
-        if (sectionConnectionCount > 0) {
-            breakdown.sectionConnections.push({
-                section: section.heading,
-                count: sectionConnectionCount,
-            });
         }
     }
 
     return {
         items,
         totalCount: items.length,
-        breakdown,
     };
 }
 
-function extractRelatedConcepts(context: any, content: string): string[] {
+function extractRelatedConcepts(context: any): string[] {
     const concepts: string[] = [];
-    
+
     // Add concepts from points in the same section/subsection
     if (context.points?.length) {
         context.points.forEach((point: string) => {
@@ -161,6 +116,10 @@ function extractRelatedConcepts(context: any, content: string): string[] {
 
 export default function generateApplicationCards(notes: StudyNotesStructure) {
     const applicationContent = getApplicationContent(notes);
-    console.log(applicationContent);
+    console.log("Application Content:", applicationContent);
+    if (applicationContent.items.length === 0) {
+        console.log("No application content found, returning empty array");
+        return Promise.resolve([]);
+    }
     return generateFlashcards('application', applicationContent.items);
 }

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, HelpCircle, CheckCircle, BarChart3, Clock, Target, Zap } from 'lucide-react';
+import { Plus, HelpCircle, CheckCircle, BarChart3, Target, Zap } from 'lucide-react';
 import { NewQuizRequest } from '@/lib/types';
 import { cn } from '@/lib/utils';
 

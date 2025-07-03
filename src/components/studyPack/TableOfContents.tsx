@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronDown, ChevronRight, List, Menu, X } from 'lucide-react';
-import { StudyNotesStructure, StudyPackData, TableOfContentsItem } from '@/lib/types';
+import { StudyNotesStructure, TableOfContentsItem } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface TableOfContentsProps {

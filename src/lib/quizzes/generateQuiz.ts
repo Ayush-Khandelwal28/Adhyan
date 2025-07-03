@@ -15,13 +15,13 @@ export default async function generateQuizzes(
     options?: {
         questionCount?: number;
         includeExplanations?: boolean;
-        difficulty?: string; 
+        difficulty?: string;
     }
 ): Promise<Quiz> {
     const {
         questionCount = 10,
         includeExplanations = true,
-        difficulty = 'Medium', 
+        difficulty = 'Medium',
     } = options || {};
 
     const systemPrompt = getSystemPrompt(type, includeExplanations);
@@ -83,8 +83,8 @@ export default async function generateQuizzes(
             };
 
             return quiz;
-        } catch (err) {
-            console.error("Failed to parse JSON:", response.content);
+        } catch (error) {
+            console.error("Failed to parse JSON:", response.content, error);
             throw new Error("Invalid JSON returned from quiz generation");
         }
     }

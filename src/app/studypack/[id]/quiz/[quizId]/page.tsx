@@ -7,6 +7,7 @@ import { MCQQuestion } from '@/components/quiz/MCQ';
 import { QuizNavigation } from '@/components/quiz/Navigation';
 import { QuizResults } from '@/components/quiz/Results';
 import { QuizReview } from '@/components/quiz/Review';
+import { QuizLoading } from '@/components/quiz/QuizLoading';
 import { QuizState, UserAnswer, QuizPhase, Quiz } from '@/lib/types';
 
 export default function QuizPage({ params }: { params: Promise<{ quizId: string }> }) {
@@ -53,13 +54,7 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
   }, [quizId]);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="container mx-auto px-6 py-8">
-          <div className="text-center">Loading quiz...</div>
-        </div>
-      </div>
-    );
+    return <QuizLoading />;
   }
 
   if (!quizData) {
