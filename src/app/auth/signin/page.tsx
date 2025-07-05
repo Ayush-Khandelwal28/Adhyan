@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
-import { Brain, Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Brain, Eye, EyeOff, Mail, Lock, Loader2 } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,18 +15,24 @@ export default function SignIn() {
   const router = useRouter();
   const { status } = useSession();
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
 
-  if (status === 'authenticated') {
-    router.push('/dashboard');
-    return null;
-  }
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/dashboard');
+    }
+  }, [status, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
     console.log('Sign in attempt:', formData);
     try {
       const response = await signIn('credentials', {
@@ -39,18 +45,20 @@ export default function SignIn() {
 
       if (response?.error) {
         console.error('Sign in failed:', response.error);
-        alert(response.error || 'Sign in failed');
+        setError(response.error || 'Sign in failed');
       } else if (response?.status === 200) {
         console.log('Sign in successful:', response);
         router.push('/dashboard');
       }
       else {
         console.error('Unexpected response:', response);
-        alert('An unexpected error occurred. Please try again later.');
+        setError('An unexpected error occurred. Please try again later.');
       }
     } catch (error) {
       console.error('Unexpected error during sign in:', error);
-      alert('An unexpected error occurred. Please try again later.');
+      setError('An unexpected error occurred. Please try again later.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -82,6 +90,13 @@ export default function SignIn() {
 
           <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Error Message */}
+              {error && (
+                <div className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 rounded-md border border-red-200 dark:border-red-800">
+                  {error}
+                </div>
+              )}
+
               {/* Email Input */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">
@@ -93,6 +108,7 @@ export default function SignIn() {
                     id="email"
                     type="email"
                     required
+                    disabled={isLoading}
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="pl-10 h-12"
@@ -112,6 +128,7 @@ export default function SignIn() {
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     required
+                    disabled={isLoading}
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     className="pl-10 pr-12 h-12"
@@ -121,6 +138,7 @@ export default function SignIn() {
                     type="button"
                     variant="ghost"
                     size="sm"
+                    disabled={isLoading}
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                   >
@@ -144,8 +162,19 @@ export default function SignIn() {
               </div> */}
 
               {/* Sign In Button */}
-              <Button type="submit" className="w-full h-12 text-base font-semibold">
-                Sign In
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full h-12 text-base font-semibold cursor-pointer"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  'Sign In'
+                )}
               </Button>
             </form>
 

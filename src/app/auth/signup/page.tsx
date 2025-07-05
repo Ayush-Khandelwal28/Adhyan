@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Brain, Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { Brain, Eye, EyeOff, Mail, Lock, User, Loader2 } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -24,6 +25,7 @@ export default function SignUp() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     
     try {
       console.log('Sign up attempt:', formData);
@@ -39,21 +41,18 @@ export default function SignUp() {
         const data = await response.json();
         console.log('Sign up successful:', data);
         router.push('/auth/signin');
-      }
-
-      if (response.status === 400) {
+      } else if (response.status === 400) {
         const errorData = await response.json();
-        console.error('Sign up failed:', errorData.message);
-        alert(errorData.error || 'Sign up failed');
-      }
-
-      if (response.status === 500) {
+        setError(errorData.error || 'Sign up failed');
+      } else if (response.status === 500) {
         console.error('Server error during sign up');
-        alert('An unexpected error occurred. Please try again later.');
+        setError('An unexpected error occurred. Please try again later.');
+      } else {
+        setError('An unexpected error occurred. Please try again later.');
       }
     } catch (error) {
       console.error('Network error during sign up:', error);
-      alert('An unexpected error occurred. Please try again later.');
+      setError('An unexpected error occurred. Please try again later.');
     } finally {
       setIsLoading(false);
     }
@@ -87,6 +86,13 @@ export default function SignUp() {
 
           <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Error Message */}
+              {error && (
+                <div className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 rounded-md border border-red-200 dark:border-red-800">
+                  {error}
+                </div>
+              )}
+
               {/* Name Input */}
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium">
@@ -98,6 +104,7 @@ export default function SignUp() {
                     id="name"
                     type="text"
                     required
+                    disabled={isLoading}
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="pl-10 h-12"
@@ -117,6 +124,7 @@ export default function SignUp() {
                     id="email"
                     type="email"
                     required
+                    disabled={isLoading}
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="pl-10 h-12"
@@ -136,6 +144,7 @@ export default function SignUp() {
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     required
+                    disabled={isLoading}
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     className="pl-10 pr-12 h-12"
@@ -145,6 +154,7 @@ export default function SignUp() {
                     type="button"
                     variant="ghost"
                     size="sm"
+                    disabled={isLoading}
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                   >
@@ -163,14 +173,14 @@ export default function SignUp() {
               {/* Sign Up Button */}
               <Button
                 type="submit"
-                className="w-full h-12 text-base font-semibold"
+                className="w-full h-12 text-base font-semibold cursor-pointer"
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Creating Account...</span>
-                  </div>
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating Account...
+                  </>
                 ) : (
                   'Create Account'
                 )}
@@ -219,7 +229,7 @@ export default function SignUp() {
               Already have an account?{' '}
               <button
                 onClick={() => router.push('/auth/signin')}
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors cursor-pointer"
               >
                 Sign in
               </button>

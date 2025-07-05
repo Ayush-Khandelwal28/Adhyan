@@ -135,7 +135,7 @@ export default function Mindmap({ params }: { params: Promise<{ id: string }> })
             </p>
             <Button
               onClick={() => generateMindMap(id)}
-              className="w-full"
+              className="w-full cursor-pointer"
               disabled={isLoading}
             >
               {isLoading ? 'Generating...' : 'Generate Mind Map'}

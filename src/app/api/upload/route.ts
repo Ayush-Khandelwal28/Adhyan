@@ -88,7 +88,9 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Failed to create study pack' }, { status: 500 });
         }
 
-        return NextResponse.json({ message: 'Upload successful', data: notes, flashcardAvailability: availability }, { status: 200 });
+        const studyPackId = notesUpload.id;
+
+        return NextResponse.json({ message: 'Upload successful', data: { studyPackId } }, { status: 200 });
     } catch (error) {
         return NextResponse.json(
             { error: (error instanceof Error ? error.message : 'Failed to upload Content') },

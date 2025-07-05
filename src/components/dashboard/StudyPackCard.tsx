@@ -18,6 +18,21 @@ export function StudyPackCard({ pack }: { pack: StudyPack }) {
         router.push(`/studypack/${pack.id}`);
     };
 
+    const handleActionClick = (actionLabel: string, event: React.MouseEvent) => {
+        event.stopPropagation(); // Prevent card click
+        const routes: Record<string, string> = {
+            'Notes': `/studypack/${pack.id}`,
+            'Mind Map': `/studypack/${pack.id}/mindmap`,
+            'Flashcards': `/studypack/${pack.id}/flashcards`,
+            'Quiz': `/studypack/${pack.id}/quiz`
+        };
+        
+        const route = routes[actionLabel];
+        if (route) {
+            router.push(route);
+        }
+    };
+
     return (
         <Card className={`hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm group flex flex-col h-full}`} onClick={handleClick}>
             <CardHeader className="flex-grow">
@@ -52,7 +67,8 @@ export function StudyPackCard({ pack }: { pack: StudyPack }) {
                             key={action.label}
                             variant="outline"
                             size="sm"
-                            className="w-full flex items-center justify-center space-x-1"
+                            className="w-full flex items-center justify-center space-x-1 cursor-pointer"
+                            onClick={(e) => handleActionClick(action.label, e)}
                         >
                             <action.icon className="h-4 w-4" />
                             <span>{action.label}</span>

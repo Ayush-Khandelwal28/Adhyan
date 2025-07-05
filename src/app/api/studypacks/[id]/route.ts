@@ -13,10 +13,13 @@ export async function GET(request: Request,
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const studyPack = await prisma.studyPack.findFirst({
+    const studyPack = await prisma.studyPack.update({
         where: {
             id,
             userId,
+        },
+        data: {
+            lastAccessedAt: new Date(),
         },
         select: {
             id: true,

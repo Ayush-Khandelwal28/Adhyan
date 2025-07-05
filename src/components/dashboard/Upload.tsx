@@ -16,7 +16,10 @@ export function UploadSection() {
         uploadData,
         setUploadData,
         handleUpload,
-        handleFileChange
+        handleFileChange,
+        isLoading,
+        error,
+        setError
     } = useUpload();
 
     return (
@@ -33,7 +36,11 @@ export function UploadSection() {
 
                     <Dialog open={uploadModalOpen} onOpenChange={setUploadModalOpen}>
                         <DialogTrigger asChild>
-                            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
+                            <Button 
+                                size="lg" 
+                                className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 cursor-pointer"
+                                disabled={isLoading}
+                            >
                                 <Plus className="h-5 w-5 mr-2" />
                                 Upload Content
                             </Button>
@@ -46,6 +53,9 @@ export function UploadSection() {
                             onClose={() => setUploadModalOpen(false)}
                             onUpload={handleUpload}
                             handleFileChange={handleFileChange}
+                            isLoading={isLoading}
+                            error={error}
+                            setError={setError}
                         />
                     </Dialog>
                 </div>
