@@ -7,12 +7,14 @@ interface BreadcrumbProps {
     studyPackId: string;
     studyPackTitle: string;
     currentPage?: string;
+    parentPage?: string; // Added to handle nested navigation
     action?: React.ReactNode;
     isLoading?: boolean;
 }
 
 const getPageIcon = (page?: string) => {
     switch (page) {
+        case 'Quiz':
         case 'Quizzes':
             return <Brain className="w-5 h-5" />;
         case 'Flashcards':
@@ -28,6 +30,7 @@ export const StudyPackBreadcrumb: React.FC<BreadcrumbProps> = ({
     studyPackId,
     studyPackTitle,
     currentPage,
+    parentPage,
     isLoading = false
 }) => {
     const router = useRouter();
@@ -53,6 +56,27 @@ export const StudyPackBreadcrumb: React.FC<BreadcrumbProps> = ({
                     </button>
                 )}
                 <div className="flex items-center min-w-0">
+                    {parentPage && (
+                        <>
+                            <span className="text-gray-300 dark:text-gray-600 mx-2">/</span>
+                            <button
+                                onClick={() => {
+                                    const parentRoutes: Record<string, string> = {
+                                        'Quizzes': `/studypack/${studyPackId}/quiz`,
+                                        'Flashcards': `/studypack/${studyPackId}/flashcards`,
+                                        'Mind Map': `/studypack/${studyPackId}/mindmap`
+                                    };
+                                    const route = parentRoutes[parentPage];
+                                    if (route) {
+                                        router.push(route);
+                                    }
+                                }}
+                                className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium cursor-pointer"
+                            >
+                                {parentPage}
+                            </button>
+                        </>
+                    )}
                     {currentPage && (
                         <>
                             <span className="text-gray-300 dark:text-gray-600 mx-2">/</span>
@@ -69,7 +93,25 @@ export const StudyPackBreadcrumb: React.FC<BreadcrumbProps> = ({
                         <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => router.push(`/studypack/${studyPackId}`)}
+                            onClick={() => {
+                                if (parentPage) {
+                                    // Navigate to parent page
+                                    const parentRoutes: Record<string, string> = {
+                                        'Quizzes': `/studypack/${studyPackId}/quiz`,
+                                        'Flashcards': `/studypack/${studyPackId}/flashcards`,
+                                        'Mind Map': `/studypack/${studyPackId}/mindmap`
+                                    };
+                                    const route = parentRoutes[parentPage];
+                                    if (route) {
+                                        router.push(route);
+                                    } else {
+                                        router.push(`/studypack/${studyPackId}`);
+                                    }
+                                } else {
+                                    // Navigate to main study pack page
+                                    router.push(`/studypack/${studyPackId}`);
+                                }
+                            }}
                             className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
                         >
                             <ArrowLeft className="w-4 h-4" />

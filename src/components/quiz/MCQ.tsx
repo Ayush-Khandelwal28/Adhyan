@@ -28,7 +28,7 @@ export const MCQQuestion: React.FC<MCQQuestionProps> = ({
             <div className="text-sm font-medium text-muted-foreground mb-4">
               Question {questionNumber} • Multiple Choice
             </div>
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white leading-relaxed">
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white leading-relaxed whitespace-pre-wrap break-words">
               {question.question}
             </h2>
           </div>
@@ -42,7 +42,7 @@ export const MCQQuestion: React.FC<MCQQuestionProps> = ({
                 variant={selectedAnswer === index ? "default" : "outline"}
                 size="lg"
                 className={cn(
-                  "w-full h-auto p-4 text-left justify-start transition-all duration-200",
+                  "w-full h-auto min-h-[60px] p-4 text-left justify-start transition-all duration-200",
                   selectedAnswer === index
                     ? "bg-blue-600 hover:bg-blue-700 text-white"
                     : "hover:bg-blue-50 hover:border-blue-300 dark:hover:bg-blue-900/20"
@@ -50,14 +50,14 @@ export const MCQQuestion: React.FC<MCQQuestionProps> = ({
               >
                 <div className="flex items-start space-x-4 w-full">
                   <div className={cn(
-                    "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold",
+                    "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold mt-0.5",
                     selectedAnswer === index
                       ? "bg-white text-blue-600"
                       : "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
                   )}>
                     {optionLabels[index]}
                   </div>
-                  <span className="text-base leading-relaxed">
+                  <span className="text-base leading-relaxed flex-1 text-left whitespace-pre-wrap break-words overflow-wrap-anywhere">
                     {option.text}
                   </span>
                 </div>

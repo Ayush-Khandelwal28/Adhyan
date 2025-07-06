@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 
 import { TableOfContents } from '@/components/studyPack/TableOfContents';
 import { NotesContent } from '@/components/studyPack/Notes';
-import { StudyToolsPanel } from '@/components/studyPack/ToolsPanel';
+import { StudyTools } from '@/components/studyPack/StudyTools';
+import { ReadingControls } from '@/components/studyPack/ReadingControls';
 import { useStudyPack } from '@/contexts/StudyPackContext';
 
 import { StudyNotesStructure } from '@/lib/types';
@@ -106,29 +107,38 @@ export default function StudyPackPage() {
 
           {/* Right Panel - Study Tools (Desktop: 30%, Mobile: Top) */}
           <div className="lg:col-span-4 order-first lg:order-last">
-            <div className="space-y-6">
-              {/* Study Tools Panel */}
-              <div className=" top-24">
-                <StudyToolsPanel
-                  studyPackId={studyPackId}
+            {/* Study Tools - Normal scroll */}
+            <div className="mb-6">
+              <StudyTools studyPackId={studyPackId} />
+            </div>
+            
+            {/* Sticky Container for TOC and Reading Controls (Desktop) */}
+            {!isMobile && studyNotes && (
+              <div className="sticky top-6 z-10 space-y-4">
+                <TableOfContents
+                  studyNotes={studyNotes}
+                  activeSection={activeSection}
+                  onSectionClick={handleSectionClick}
+                  isMobile={false}
+                />
+                <ReadingControls
                   fontSize={fontSize}
                   onFontSizeChange={setFontSize}
                   onScrollToTop={handleScrollToTop}
                 />
               </div>
-              {/* Table of Contents (Desktop) */}
-              {!isMobile && studyNotes && (
-                <div className="sticky top-48">
-                  <TableOfContents
-                    studyNotes={studyNotes}
-                    activeSection={activeSection}
-                    onSectionClick={handleSectionClick}
-                    isMobile={false}
-                  />
-                </div>
-              )}
+            )}
 
-            </div>
+            {/* Reading Controls for Mobile - when TOC is not shown */}
+            {isMobile && (
+              <div className="sticky top-6 z-10">
+                <ReadingControls
+                  fontSize={fontSize}
+                  onFontSizeChange={setFontSize}
+                  onScrollToTop={handleScrollToTop}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

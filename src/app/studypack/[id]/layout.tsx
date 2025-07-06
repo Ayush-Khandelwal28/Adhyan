@@ -16,11 +16,19 @@ const StudyPackLayoutContent: React.FC<{ children: React.ReactNode; studyPackId:
     const pathname = usePathname();
 
     const getCurrentPage = () => {
-        if (pathname.includes('/quiz')) return 'Quizzes';
-        if (pathname.includes('/flashcards')) return 'Flashcards';
-        if (pathname.includes('/mindmap')) return 'Mind Map';
-        return undefined; // For the main studypack page
+        if (pathname.includes('/quiz')) {
+            const quizMatch = pathname.match(/\/quiz\/([^\/]+)$/);
+            if (quizMatch) {
+                return { current: 'Quiz', parent: 'Quizzes' };
+            }
+            return { current: 'Quizzes', parent: undefined };
+        }
+        if (pathname.includes('/flashcards')) return { current: 'Flashcards', parent: undefined };
+        if (pathname.includes('/mindmap')) return { current: 'Mind Map', parent: undefined };
+        return { current: undefined, parent: undefined }; // For the main studypack page
     };
+
+    const pageInfo = getCurrentPage();
 
     return (
         <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
@@ -29,7 +37,8 @@ const StudyPackLayoutContent: React.FC<{ children: React.ReactNode; studyPackId:
                     <StudyPackBreadcrumb
                         studyPackId={studyPackId}
                         studyPackTitle={studyPack?.title || ''}
-                        currentPage={getCurrentPage()}
+                        currentPage={pageInfo.current}
+                        parentPage={pageInfo.parent}
                         isLoading={isLoading}
                     />
                     <ThemeToggle />

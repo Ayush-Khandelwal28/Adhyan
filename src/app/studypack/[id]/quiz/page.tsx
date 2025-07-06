@@ -139,6 +139,7 @@ export default function QuizzesPage({ params }: { params: Promise<{ id: string }
       setQuizzes(prev => [newQuiz, ...prev]);
     } catch (error) {
       console.error('Error creating quiz:', error);
+      throw error; 
     } finally {
       setIsCreatingQuiz(false);
     }
@@ -183,14 +184,6 @@ export default function QuizzesPage({ params }: { params: Promise<{ id: string }
   return (
     <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-6 py-8">
-        {/* Action Bar */}
-        <div className="flex justify-end mb-6">
-          <NewQuizDialog
-            onCreateQuiz={handleCreateQuiz}
-            isCreating={isCreatingQuiz}
-          />
-        </div>
-
         {/* Filters and Sorting */}
         <QuizFiltersComponent
           filters={filters}
@@ -199,6 +192,8 @@ export default function QuizzesPage({ params }: { params: Promise<{ id: string }
           onSortChange={setSortOption}
           totalQuizzes={quizzes.length}
           filteredCount={filteredAndSortedQuizzes.length}
+          onCreateQuiz={handleCreateQuiz}
+          isCreatingQuiz={isCreatingQuiz}
         />
 
         {/* Quizzes Grid */}

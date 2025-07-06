@@ -10,7 +10,7 @@ export default function Home() {
       <Navigation />
 
       <main className="relative">
-        <div className="max-w-7xl mx-auto px-6 pt-20 pb-16 text-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 pt-20 pb-16 text-center">
           <HeroSection />
           <FeatureIcons />
         </div>

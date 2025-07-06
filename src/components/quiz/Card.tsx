@@ -135,7 +135,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({ quiz, onStartQuiz }) => {
         {/* Action Button */}
         <Button
           onClick={() => onStartQuiz(quiz.id)}
-          className="w-full flex items-center justify-center space-x-2 mt-4"
+          className="w-full flex items-center justify-center space-x-2 mt-4 cursor-pointer"
         >
           <Play className="w-4 h-4" />
           <span>Start Quiz</span>

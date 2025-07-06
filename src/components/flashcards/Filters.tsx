@@ -1,8 +1,7 @@
 import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Filter, BookOpen, Brain, Lightbulb } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Filter, BookOpen, Brain, Lightbulb, X } from 'lucide-react';
 import { FilterState } from '@/lib/types';
 
 interface FlashcardFiltersProps {
@@ -40,56 +39,103 @@ export const Filters: React.FC<FlashcardFiltersProps> = ({
     }
   };
 
-  const getColor = (type: string) => {
-    switch (type) {
-      case 'definitions':
-        return 'text-blue-600 dark:text-blue-400';
-      case 'recall':
-        return 'text-green-600 dark:text-green-400';
-      case 'application':
-        return 'text-purple-600 dark:text-purple-400';
-      default:
-        return 'text-gray-600';
+  const getColorClasses = (type: string, isSelected: boolean) => {
+    const baseClasses = "flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-200 cursor-pointer";
+    
+    if (isSelected) {
+      switch (type) {
+        case 'definitions':
+          return `${baseClasses} bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-300`;
+        case 'recall':
+          return `${baseClasses} bg-green-50 border-green-200 text-green-700 dark:bg-green-950 dark:border-green-800 dark:text-green-300`;
+        case 'application':
+          return `${baseClasses} bg-purple-50 border-purple-200 text-purple-700 dark:bg-purple-950 dark:border-purple-800 dark:text-purple-300`;
+        default:
+          return `${baseClasses} bg-gray-50 border-gray-200 text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300`;
+      }
+    } else {
+      return `${baseClasses} bg-white border-gray-200 text-gray-500 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-750`;
     }
   };
 
   const cardTypes = [
     { id: 'definitions', label: 'Definitions', count: cardCounts.definitions },
-    { id: 'recall', label: 'Recall Questions', count: cardCounts.recall },
-    { id: 'application', label: 'Application-Based', count: cardCounts.application }
+    { id: 'recall', label: 'Recall', count: cardCounts.recall },
+    { id: 'application', label: 'Application', count: cardCounts.application }
   ];
 
+  const hasActiveFilters = Object.values(filters).some(filter => !filter);
+
+  const clearAllFilters = () => {
+    onFilterChange({
+      definitions: true,
+      recall: true,
+      application: true
+    });
+  };
+
+  const totalCards = cardCounts.definitions + cardCounts.recall + cardCounts.application;
+  const visibleCards = Object.entries(filters).reduce((sum, [type, enabled]) => {
+    if (enabled) {
+      return sum + cardCounts[type as keyof typeof cardCounts];
+    }
+    return sum;
+  }, 0);
+
   return (
-    <Card className="mb-6">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg flex items-center">
-          <Filter className="w-5 h-5 mr-2" />
-          Card Types
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {cardTypes.map(({ id, label, count }) => (
-            <div key={id} className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
+      {/* Left side - Filters */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+          <Filter className="w-4 h-4" />
+          <span className="font-medium">Card Types:</span>
+        </div>
+        
+        {cardTypes.map(({ id, label, count }) => {
+          const isSelected = filters[id as keyof FilterState];
+          return (
+            <div
+              key={id}
+              className={getColorClasses(id, isSelected)}
+              onClick={() => handleFilterChange(id as keyof FilterState, !isSelected)}
+            >
               <Checkbox
                 id={id}
-                checked={filters[id as keyof FilterState]}
+                checked={isSelected}
                 onCheckedChange={(checked) => handleFilterChange(id as keyof FilterState, checked as boolean)}
+                className="pointer-events-none"
               />
-              <Label
-                htmlFor={id}
-                className="flex items-center space-x-2 cursor-pointer flex-1"
-              >
-                <span className={getColor(id)}>
-                  {getIcon(id)}
-                </span>
-                <span className="font-medium">{label}</span>
-                <span className="text-sm text-muted-foreground">({count})</span>
-              </Label>
+              <span className="text-sm">
+                {getIcon(id)}
+              </span>
+              <span className="text-sm font-medium">{label}</span>
+              <span className="text-xs opacity-70">({count})</span>
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+          );
+        })}
+
+        {/* Clear Filters */}
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearAllFilters}
+            className="h-8 px-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            <X className="w-3 h-3 mr-1" />
+            Clear
+          </Button>
+        )}
+      </div>
+
+      {/* Right side - Results count */}
+      <div className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+        {visibleCards === totalCards ? (
+          <span>{totalCards} card{totalCards !== 1 ? 's' : ''}</span>
+        ) : (
+          <span>{visibleCards} of {totalCards} card{totalCards !== 1 ? 's' : ''}</span>
+        )}
+      </div>
+    </div>
   );
 };

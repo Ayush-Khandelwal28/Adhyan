@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, use } from 'react';
+import { useRouter } from 'next/navigation';
 import { AlertCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Filters } from '@/components/flashcards/Filters';
@@ -12,6 +13,7 @@ import { Flashcard, FlashcardGroup, StudySession, FilterState, FlashcardAvailabi
 
 export default function FlashcardPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const router = useRouter();
 
   const [filters, setFilters] = useState<FilterState>({
     definitions: true,
@@ -32,6 +34,7 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
   const [isSessionComplete, setIsSessionComplete] = useState(false);
   const [isFlashcardsAvailable, setIsFlashcardsAvailable] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [flashcards, setFlashcards] = useState<FlashcardGroup[]>([]);
   const [flashcardAvailability, setFlashcardAvailability] = useState<FlashcardAvailability>();
 
@@ -82,19 +85,20 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
       }
       const data = await response.json();
       console.log('Flashcards data:', data);
+      
+      setIsFlashcardsAvailable(data.isFlashcardsAvailable);
+      
       if (!data.isFlashcardsAvailable) {
-        setIsFlashcardsAvailable(false);
-        setFlashcardAvailability(data.flashcardAvailabilityJson.availability);
+        setFlashcardAvailability(data.flashcardAvailabilityJson?.availability || data.flashcardAvailabilityJson);
+        setFlashcards([]);
+      } else {
         setFlashcards(data.flashcards || []);
-        setIsLoading(false);
-      }
-      else {
-        setIsFlashcardsAvailable(true);
-        setFlashcards(data.flashcards);
-        setIsLoading(false);
       }
     } catch (error) {
       console.error('Error fetching flashcards:', error);
+      setIsFlashcardsAvailable(false);
+      setFlashcards([]);
+    } finally {
       setIsLoading(false);
     }
   }, [id]);
@@ -102,6 +106,7 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
   const generateFlashcards = async () => {
     if (!id) return;
 
+    setIsGenerating(true);
     try {
       console.log('Generating flashcards for study pack ID:', id);
       const response = await fetch(`/api/flashcards/generate`, {
@@ -118,19 +123,23 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
       });
       if (!response.ok) {
         console.log(response);
-        throw new Error('Failed to fetch flashcards');
+        throw new Error('Failed to generate flashcards');
       }
       const data = await response.json();
-      if (data.flashcards) {
-        setFlashcards(data.flashcards);
+      console.log('Generated flashcards data:', data);
+      
+      if (data.data && data.data.length > 0) {
+        setFlashcards(data.data);
         setIsFlashcardsAvailable(true);
       } else {
         setIsFlashcardsAvailable(false);
-        setFlashcardAvailability(data.flashcardAvailabilityJson.availability);
+        setFlashcardAvailability(data.flashcardAvailabilityJson?.availability || data.flashcardAvailabilityJson);
       }
     } catch (error) {
-      console.error('Error fetching flashcards:', error);
-      setIsLoading(false);
+      console.error('Error generating flashcards:', error);
+      setIsFlashcardsAvailable(false);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -150,6 +159,7 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
   }, [id, getFlashcards]);
 
   useEffect(() => {
+    console.log('filteredCards changed:', filteredCards.length);
     if (filteredCards.length > 0) {
       setShuffledCards([...filteredCards]);
       setSession({
@@ -164,7 +174,13 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
     }
   }, [filteredCards]);
 
-  console.log('Flashcards', flashcards);
+  console.log('Render state:', { 
+    isLoading, 
+    isFlashcardsAvailable, 
+    flashcardsLength: flashcards.length, 
+    allCardsLength: allCards.length,
+    filteredCardsLength: filteredCards.length 
+  });
 
   if (!id) {
     console.error('Study Pack ID not found in URL');
@@ -247,7 +263,7 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
   };
 
   const handleReturnToPack = () => {
-    console.log('Returning to pack...');
+    router.push(`/studypack/${id}`);
   };
 
   const handleStudyAgain = () => {
@@ -256,7 +272,26 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
 
   const currentCard = shuffledCards[session.currentIndex];
 
-  if (!isLoading && !isFlashcardsAvailable) {
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="container mx-auto px-6 py-8">
+          <Card className="max-w-2xl mx-auto">
+            <CardContent className="p-12 text-center">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <h3 className="text-xl font-semibold mb-2">Loading Flashcards...</h3>
+              <p className="text-muted-foreground">
+                Please wait while we fetch your flashcards.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isFlashcardsAvailable) {
     { console.log('Flashcard availability:', flashcardAvailability) }
     return (
       <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -277,9 +312,10 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
               </div>
               <button
                 onClick={generateFlashcards}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                disabled={isGenerating}
+                className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer"
               >
-                Generate Flashcards
+                {isGenerating ? 'Generating...' : 'Generate Flashcards'}
               </button>
             </CardContent>
           </Card>

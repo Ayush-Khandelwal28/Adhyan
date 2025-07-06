@@ -34,78 +34,78 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-md mx-auto">
       <Card className="text-center">
-        <CardHeader>
-          <div className="flex justify-center mb-4">
-            <Trophy className="w-16 h-16 text-yellow-500" />
+        <CardHeader className="pb-2">
+          <div className="flex justify-center mb-1">
+            <Trophy className="w-8 h-8 text-yellow-500" />
           </div>
-          <CardTitle className="text-3xl font-bold">Quiz Complete!</CardTitle>
+          <CardTitle className="text-xl font-bold">Quiz Complete!</CardTitle>
         </CardHeader>
         
-        <CardContent className="space-y-8">
+        <CardContent className="space-y-4">
           {/* Score Display */}
-          <div className="space-y-4">
-            <div className={`text-6xl font-bold ${getScoreColor(percentage)}`}>
+          <div className="space-y-2">
+            <div className={`text-3xl font-bold ${getScoreColor(percentage)}`}>
               {percentage}%
             </div>
-            <div className="text-xl text-muted-foreground">
+            <div className="text-base text-muted-foreground">
               {score} out of {totalQuestions} correct
             </div>
-            <div className="text-lg font-medium">
+            <div className="text-sm font-medium">
               {getScoreMessage(percentage)}
             </div>
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-2">
             <Card>
-              <CardContent className="p-4 text-center">
-                <Target className="w-8 h-8 mx-auto mb-2 text-blue-600 dark:text-blue-400" />
-                <div className="text-2xl font-bold">{totalQuestions}</div>
-                <div className="text-sm text-muted-foreground">Total Questions</div>
+              <CardContent className="p-2 text-center">
+                <Target className="w-5 h-5 mx-auto mb-1 text-blue-600 dark:text-blue-400" />
+                <div className="text-lg font-bold">{totalQuestions}</div>
+                <div className="text-xs text-muted-foreground">Total</div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardContent className="p-4 text-center">
-                <CheckCircle className="w-8 h-8 mx-auto mb-2 text-green-600 dark:text-green-400" />
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+              <CardContent className="p-2 text-center">
+                <CheckCircle className="w-5 h-5 mx-auto mb-1 text-green-600 dark:text-green-400" />
+                <div className="text-lg font-bold text-green-600 dark:text-green-400">
                   {score}
                 </div>
-                <div className="text-sm text-muted-foreground">Correct</div>
+                <div className="text-xs text-muted-foreground">Correct</div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardContent className="p-4 text-center">
-                <XCircle className="w-8 h-8 mx-auto mb-2 text-red-600 dark:text-red-400" />
-                <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+              <CardContent className="p-2 text-center">
+                <XCircle className="w-5 h-5 mx-auto mb-1 text-red-600 dark:text-red-400" />
+                <div className="text-lg font-bold text-red-600 dark:text-red-400">
                   {incorrectAnswers}
                 </div>
-                <div className="text-sm text-muted-foreground">Incorrect</div>
+                <div className="text-xs text-muted-foreground">Incorrect</div>
               </CardContent>
             </Card>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-2 justify-center">
             <Button
               onClick={onReviewAnswers}
-              size="lg"
-              className="flex items-center space-x-2"
+              size="sm"
+              className="flex items-center space-x-2 cursor-pointer"
             >
-              <Eye className="w-4 h-4" />
+              <Eye className="w-3 h-3" />
               <span>Review Answers</span>
             </Button>
             
             <Button
               onClick={onRetakeQuiz}
               variant="outline"
-              size="lg"
-              className="flex items-center space-x-2"
+              size="sm"
+              className="flex items-center space-x-2 cursor-pointer"
             >
-              <Trophy className="w-4 h-4" />
+              <Trophy className="w-3 h-3" />
               <span>Retake Quiz</span>
             </Button>
           </div>

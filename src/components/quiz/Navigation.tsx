@@ -30,7 +30,7 @@ export const QuizNavigation: React.FC<QuizNavigationProps> = ({
           disabled={!canGoBack}
           variant="outline"
           size="lg"
-          className="flex items-center space-x-2"
+          className="flex items-center space-x-2 cursor-pointer"
         >
           <ChevronLeft className="w-4 h-4" />
           <span>Previous</span>
@@ -40,7 +40,7 @@ export const QuizNavigation: React.FC<QuizNavigationProps> = ({
           <Button
             onClick={onFinish}
             size="lg"
-            className="flex items-center space-x-2 bg-green-600 hover:bg-green-700"
+            className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 cursor-pointer"
           >
             <Flag className="w-4 h-4" />
             <span>Finish Quiz</span>
@@ -50,7 +50,7 @@ export const QuizNavigation: React.FC<QuizNavigationProps> = ({
             onClick={onNext}
             disabled={!canGoForward}
             size="lg"
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-2 cursor-pointer"
           >
             <span>Next</span>
             <ChevronRight className="w-4 h-4" />

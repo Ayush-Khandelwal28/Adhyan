@@ -27,7 +27,7 @@ export const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
             <div className="text-sm font-medium text-muted-foreground mb-4">
               Question {questionNumber} • True or False
             </div>
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white leading-relaxed">
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white leading-relaxed whitespace-pre-wrap break-words">
               {question.statement}
             </h2>
           </div>
@@ -39,7 +39,7 @@ export const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
               variant={selectedAnswer === true ? "default" : "outline"}
               size="lg"
               className={cn(
-                "h-16 text-lg font-semibold transition-all duration-200",
+                "h-16 text-lg font-semibold transition-all duration-200 cursor-pointer",
                 selectedAnswer === true
                   ? "bg-green-600 hover:bg-green-700 text-white"
                   : "hover:bg-green-50 hover:border-green-300 hover:text-green-700 dark:hover:bg-green-900/20"
@@ -54,7 +54,7 @@ export const TrueFalseQuestion: React.FC<TrueFalseQuestionProps> = ({
               variant={selectedAnswer === false ? "default" : "outline"}
               size="lg"
               className={cn(
-                "h-16 text-lg font-semibold transition-all duration-200",
+                "h-16 text-lg font-semibold transition-all duration-200  cursor-pointer",
                 selectedAnswer === false
                   ? "bg-red-600 hover:bg-red-700 text-white"
                   : "hover:bg-red-50 hover:border-red-300 hover:text-red-700 dark:hover:bg-red-900/20"
