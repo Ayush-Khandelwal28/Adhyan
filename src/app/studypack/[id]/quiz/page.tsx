@@ -1,16 +1,18 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, use } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 import { QuizCard } from '@/components/quiz/Card';
 import { QuizFiltersComponent } from '@/components/quiz/Filters';
 import { NewQuizDialog } from '@/components/quiz/NewQuiz';
+import { useStudyPack } from '@/contexts/StudyPackContext';
 
 import { QuizFilters, QuizSortOption, NewQuizRequest, QuizData } from '@/lib/types';
 
-export default function QuizzesPage({ params }: { params: Promise<{ id: string }> }) {
+export default function QuizzesPage() {
+  const { studyPackId } = useStudyPack();
   const [quizzes, setQuizzes] = useState<QuizData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingQuiz, setIsCreatingQuiz] = useState(false);
@@ -26,38 +28,38 @@ export default function QuizzesPage({ params }: { params: Promise<{ id: string }
     direction: 'desc'
   });
 
-  const { id } = use(params);
-
-  const getQuizzes = async (id: string) => {
-    console.log('Fetching quizzes for study pack ID:', id);
-    try {
-      const response = await fetch(`/api/quiz/all?studyPackId=${id}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!response.ok) {
-        throw new Error(`Error fetching quizzes: ${response.statusText}`);
-      }
-      const data = await response.json();
-      console.log('Quizzes fetched successfully:', data.data);
-      setQuizzes(data.data || []);
-    } catch (error) {
-      console.error('Error fetching quizzes:', error);
-      setQuizzes([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Load quizzes data
   useEffect(() => {
-    getQuizzes(id).catch(error => {
-      console.error('Error loading quizzes:', error);
-      setIsLoading(false);
-    });
-  }, [id]);
+    const getQuizzes = async () => {
+      console.log('Fetching quizzes for study pack ID:', studyPackId);
+      try {
+        const response = await fetch(`/api/quiz/all?studyPackId=${studyPackId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!response.ok) {
+          throw new Error(`Error fetching quizzes: ${response.statusText}`);
+        }
+        const data = await response.json();
+        console.log('Quizzes fetched successfully:', data.data);
+        setQuizzes(data.data || []);
+      } catch (error) {
+        console.error('Error fetching quizzes:', error);
+        setQuizzes([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (studyPackId) {
+      getQuizzes().catch(error => {
+        console.error('Error loading quizzes:', error);
+        setIsLoading(false);
+      });
+    }
+  }, [studyPackId]);
 
   // Filter and sort quizzes
   const filteredAndSortedQuizzes = useMemo(() => {
@@ -109,7 +111,7 @@ export default function QuizzesPage({ params }: { params: Promise<{ id: string }
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          studyPackId: id,
+          studyPackId: studyPackId,
           quizTitle: request.title || `${request.difficulty || 'General'} ${request.type || 'Quiz'} - ${new Date().toISOString().split('T')[0]}`,
           quizType: request.type,
           questionCount: request.questionCount,
@@ -139,7 +141,7 @@ export default function QuizzesPage({ params }: { params: Promise<{ id: string }
       setQuizzes(prev => [newQuiz, ...prev]);
     } catch (error) {
       console.error('Error creating quiz:', error);
-      throw error; 
+      throw error;
     } finally {
       setIsCreatingQuiz(false);
     }
@@ -149,10 +151,10 @@ export default function QuizzesPage({ params }: { params: Promise<{ id: string }
   const handleStartQuiz = (quizId: string) => {
     return () => {
       // Store the URL
-      const targetUrl = `/studypack/${id}/quiz/${quizId}`;
+      const targetUrl = `/studypack/${studyPackId}/quiz/${quizId}`;
 
       // Debug logs
-      console.log('Study Pack ID:', id);
+      console.log('Study Pack ID:', studyPackId);
       console.log('Quiz ID:', quizId);
       console.log('Target URL:', targetUrl);
       window.location.href = targetUrl;

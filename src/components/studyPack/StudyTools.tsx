@@ -3,13 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Brain, HelpCircle, Map } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useStudyPack } from '@/contexts/StudyPackContext';
 
-interface StudyToolsProps {
-  studyPackId: string;
-}
-
-export const StudyTools: React.FC<StudyToolsProps> = ({ studyPackId }) => {
+export const StudyTools: React.FC = () => {
   const router = useRouter();
+  const { studyPackId } = useStudyPack();
 
   const handleToolClick = (tool: string) => {
     switch (tool) {
@@ -59,7 +57,7 @@ export const StudyTools: React.FC<StudyToolsProps> = ({ studyPackId }) => {
       <CardContent className="space-y-4">
         <div className="grid grid-cols-3 gap-4">
           {tools.map(({ tool, label, icon: Icon, gradient }) => (
-            <Button 
+            <Button
               key={tool}
               className={`w-full h-16 bg-gradient-to-r ${gradient} text-white cursor-pointer`}
               onClick={() => handleToolClick(tool)}

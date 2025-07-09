@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, use } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,10 +9,11 @@ import { ProgressTracker } from '@/components/flashcards/ProgressTracker';
 import { FlashcardComponent } from '@/components/flashcards/Flashcard';
 import { ActionMenu } from '@/components/flashcards/ActionMenu';
 import { SessionScreen } from '@/components/flashcards/sessionScreen';
+import { useStudyPack } from '@/contexts/StudyPackContext';
 import { Flashcard, FlashcardGroup, StudySession, FilterState, FlashcardAvailability } from '@/lib/types';
 
-export default function FlashcardPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function FlashcardPage() {
+  const { studyPackId } = useStudyPack();
   const router = useRouter();
 
   const [filters, setFilters] = useState<FilterState>({
@@ -72,10 +73,10 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
   }, [allCards]);
 
   const getFlashcards = React.useCallback(async () => {
-    if (!id) return;
+    if (!studyPackId) return;
 
     try {
-      const response = await fetch(`/api/flashcards?id=${id}`, {
+      const response = await fetch(`/api/flashcards?id=${studyPackId}`, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -85,9 +86,9 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
       }
       const data = await response.json();
       console.log('Flashcards data:', data);
-      
+
       setIsFlashcardsAvailable(data.isFlashcardsAvailable);
-      
+
       if (!data.isFlashcardsAvailable) {
         setFlashcardAvailability(data.flashcardAvailabilityJson?.availability || data.flashcardAvailabilityJson);
         setFlashcards([]);
@@ -101,21 +102,21 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
     } finally {
       setIsLoading(false);
     }
-  }, [id]);
+  }, [studyPackId]);
 
   const generateFlashcards = async () => {
-    if (!id) return;
+    if (!studyPackId) return;
 
     setIsGenerating(true);
     try {
-      console.log('Generating flashcards for study pack ID:', id);
+      console.log('Generating flashcards for study pack ID:', studyPackId);
       const response = await fetch(`/api/flashcards/generate`, {
         headers: {
           'Content-Type': 'application/json'
         },
         method: 'POST',
         body: JSON.stringify({
-          id,
+          id: studyPackId,
           definition: true,
           recall: true,
           application: true,
@@ -127,7 +128,7 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
       }
       const data = await response.json();
       console.log('Generated flashcards data:', data);
-      
+
       if (data.data && data.data.length > 0) {
         setFlashcards(data.data);
         setIsFlashcardsAvailable(true);
@@ -144,7 +145,7 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
   };
 
   useEffect(() => {
-    if (!id) return;
+    if (!studyPackId) return;
 
     setIsLoading(true);
     (async () => {
@@ -156,7 +157,7 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
         setIsLoading(false);
       }
     })();
-  }, [id, getFlashcards]);
+  }, [studyPackId, getFlashcards]);
 
   useEffect(() => {
     console.log('filteredCards changed:', filteredCards.length);
@@ -174,16 +175,16 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
     }
   }, [filteredCards]);
 
-  console.log('Render state:', { 
-    isLoading, 
-    isFlashcardsAvailable, 
-    flashcardsLength: flashcards.length, 
+  console.log('Render state:', {
+    isLoading,
+    isFlashcardsAvailable,
+    flashcardsLength: flashcards.length,
     allCardsLength: allCards.length,
-    filteredCardsLength: filteredCards.length 
+    filteredCardsLength: filteredCards.length
   });
 
-  if (!id) {
-    console.error('Study Pack ID not found in URL');
+  if (!studyPackId) {
+    console.error('Study Pack ID not found in context');
     return <div>Error: Study Pack ID not found</div>;
   }
 
@@ -263,7 +264,7 @@ export default function FlashcardPage({ params }: { params: Promise<{ id: string
   };
 
   const handleReturnToPack = () => {
-    router.push(`/studypack/${id}`);
+    router.push(`/studypack/${studyPackId}`);
   };
 
   const handleStudyAgain = () => {

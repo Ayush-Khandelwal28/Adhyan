@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, use, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactFlow, {
   Controls,
   Background,
@@ -15,6 +15,7 @@ import { transformToMindMap } from '@/lib/transformToMindmap';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Brain } from 'lucide-react';
+import { useStudyPack } from '@/contexts/StudyPackContext';
 
 import { MindMapStructure } from '@/lib/types';
 
@@ -22,7 +23,8 @@ const nodeTypes = {
   custom: CustomNode,
 };
 
-export default function Mindmap({ params }: { params: Promise<{ id: string }> }) {
+export default function Mindmap() {
+  const { studyPackId } = useStudyPack();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [propMindMapData, setPropMindMapData] = useState<MindMapStructure | null>(null);
@@ -30,8 +32,6 @@ export default function Mindmap({ params }: { params: Promise<{ id: string }> })
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
-  const { id } = use(params);
 
   useEffect(() => {
     const handleNodeExpand = (event: CustomEvent) => {
@@ -53,23 +53,36 @@ export default function Mindmap({ params }: { params: Promise<{ id: string }> })
     };
   }, []);
 
-  const generateMindMap = async (id: string) => {
+  const generateMindMap = async () => {
     try {
       setIsLoading(true);
+      setError(null);
+      
       const response = await fetch("/api/mindmap/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          id
+          id: studyPackId
         })
       });
       const data = await response.json();
       if (response.ok) {
         console.log('MindMap Data:', data);
         // After generation, fetch the mindmap
-        await getMindMapData(id);
+        const fetchResponse = await fetch(`/api/mindmap?studyPackId=${studyPackId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+        const fetchData = await fetchResponse.json();
+        if (fetchResponse.ok) {
+          setPropMindMapData(fetchData.data);
+        } else {
+          setError('Failed to fetch generated mindmap');
+        }
       } else {
         setError('Failed to generate mindmap');
       }
@@ -81,33 +94,35 @@ export default function Mindmap({ params }: { params: Promise<{ id: string }> })
     }
   }
 
-  const getMindMapData = async (id: string) => {
-    try {
-      const response = await fetch(`/api/mindmap?studyPackId=${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
-      const data = await response.json();
-      if (response.status === 404) {
-        setError(data.error);
-        return;
-      }
-      console.log('MindMap Data:', data);
-      setPropMindMapData(data.data);
-      setError(null);
-    } catch (error) {
-      console.error('Error:', error);
-      setError('An error occurred while fetching the mindmap');
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
   useEffect(() => {
-    getMindMapData(id);
-  }, [id]);
+    const getMindMapData = async () => {
+      try {
+        const response = await fetch(`/api/mindmap?studyPackId=${studyPackId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+        const data = await response.json();
+        if (response.status === 404) {
+          setError(data.error);
+          return;
+        }
+        console.log('MindMap Data:', data);
+        setPropMindMapData(data.data);
+        setError(null);
+      } catch (error) {
+        console.error('Error:', error);
+        setError('An error occurred while fetching the mindmap');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (studyPackId) {
+      getMindMapData();
+    }
+  }, [studyPackId]);
 
 
   useEffect(() => {
@@ -119,26 +134,30 @@ export default function Mindmap({ params }: { params: Promise<{ id: string }> })
   }, [expandedNodes, propMindMapData, setNodes, setEdges]);
 
 
-  if (error === 'Mindmap not found for this study pack') {
+  if (error === 'Mindmap not found for this study pack' || error) {
     return (
       <div className="w-full h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <Card className="w-96">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Brain className="w-6 h-6 text-blue-600" />
-              Generate Mind Map
+              {error === 'Mindmap not found for this study pack' ? 'Generate Mind Map' : 'Mind Map Error'}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <p className="text-muted-foreground">
-              No mind map found for this study pack. Generate one to visualize the content.
+              {error === 'Mindmap not found for this study pack' 
+                ? 'No mind map found for this study pack. Generate one to visualize the content.'
+                : error
+              }
             </p>
             <Button
-              onClick={() => generateMindMap(id)}
+              onClick={() => generateMindMap()}
               className="w-full cursor-pointer"
               disabled={isLoading}
             >
-              {isLoading ? 'Generating...' : 'Generate Mind Map'}
+              {isLoading ? 'Processing...' : 
+               error === 'Mindmap not found for this study pack' ? 'Generate Mind Map' : 'Try Again'}
             </Button>
           </CardContent>
         </Card>
@@ -156,25 +175,6 @@ export default function Mindmap({ params }: { params: Promise<{ id: string }> })
               <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
               <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="w-full h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <Card className="w-96">
-          <CardContent className="p-8 text-center">
-            <p className="text-red-600 dark:text-red-400">{error}</p>
-            <Button
-              onClick={() => getMindMapData(id)}
-              className="mt-4"
-              variant="outline"
-            >
-              Try Again
-            </Button>
           </CardContent>
         </Card>
       </div>

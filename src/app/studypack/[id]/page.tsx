@@ -11,7 +11,7 @@ import { useStudyPack } from '@/contexts/StudyPackContext';
 import { StudyNotesStructure } from '@/lib/types';
 
 export default function StudyPackPage() {
-  const { studyPack, isLoading, studyPackId } = useStudyPack();
+  const { studyPack, isLoading } = useStudyPack();
   const [studyNotes, setStudyNotes] = useState<StudyNotesStructure | undefined>(undefined);
   const [activeSection, setActiveSection] = useState('section-0');
   const [fontSize, setFontSize] = useState(16);
@@ -109,9 +109,9 @@ export default function StudyPackPage() {
           <div className="lg:col-span-4 order-first lg:order-last">
             {/* Study Tools - Normal scroll */}
             <div className="mb-6">
-              <StudyTools studyPackId={studyPackId} />
+              <StudyTools />
             </div>
-            
+
             {/* Sticky Container for TOC and Reading Controls (Desktop) */}
             {!isMobile && studyNotes && (
               <div className="sticky top-6 z-10 space-y-4">
