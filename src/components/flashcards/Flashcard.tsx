@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Brain, Lightbulb, RotateCcw, CheckCircle, XCircle } from 'lucide-react';
@@ -19,6 +19,12 @@ export const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
   totalCards
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
+  
+  // Reset the flip state when the card changes
+  // This uses the card's front text as a dependency to identify card changes
+  useEffect(() => {
+    setIsFlipped(false);
+  }, [card.front]);
 
   const getCardStyle = (type: string) => {
     switch (type) {
@@ -67,8 +73,11 @@ export const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
   };
 
   const handleAnswer = (correct: boolean) => {
-    onAnswer(correct);
     setIsFlipped(false);
+    
+    setTimeout(() => {
+      onAnswer(correct);
+    }, 50);
   };
 
   return (
@@ -84,7 +93,7 @@ export const FlashcardComponent: React.FC<FlashcardComponentProps> = ({
       <div className="perspective-1000 h-[450px]">
         <div 
           className={cn(
-            "relative w-full h-full transition-transform duration-700 transform-style-preserve-3d cursor-pointer",
+            "relative w-full h-full transition-transform duration-300 transform-style-preserve-3d cursor-pointer",
             isFlipped && "rotate-y-180"
           )}
           onClick={handleCardClick}

@@ -215,15 +215,22 @@ export default function FlashcardPage() {
 
     if (newCompletedCards.size >= shuffledCards.length) {
       setIsSessionComplete(true);
+      setSession(newSession);
     } else {
-      let nextIndex = (currentCardIndex + 1) % shuffledCards.length;
-      while (newCompletedCards.has(nextIndex) && newCompletedCards.size < shuffledCards.length) {
-        nextIndex = (nextIndex + 1) % shuffledCards.length;
-      }
-      newSession.currentIndex = nextIndex;
-    }
+      setSession(newSession);
 
-    setSession(newSession);
+      setTimeout(() => {
+        let nextIndex = (currentCardIndex + 1) % shuffledCards.length;
+        while (newCompletedCards.has(nextIndex) && newCompletedCards.size < shuffledCards.length) {
+          nextIndex = (nextIndex + 1) % shuffledCards.length;
+        }
+
+        setSession(prev => ({
+          ...prev,
+          currentIndex: nextIndex
+        }));
+      }, 300);
+    }
   };
 
   const handleShuffle = () => {

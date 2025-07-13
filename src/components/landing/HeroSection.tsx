@@ -33,7 +33,12 @@ export function HeroSection() {
           <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
         </button>
         
-        <button className="group text-gray-700 dark:text-gray-300 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-white dark:hover:bg-gray-800 hover:shadow-md transition-all duration-200 flex items-center space-x-2">
+        <button 
+          onClick={() => {
+            document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+          }}
+          className="group text-gray-700 dark:text-gray-300 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-white dark:hover:bg-gray-800 hover:shadow-md transition-all duration-200 flex items-center space-x-2"
+        >
           <PlayCircle className="h-5 w-5" />
           <span>Watch Demo</span>
         </button>

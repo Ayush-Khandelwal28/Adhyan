@@ -23,20 +23,24 @@ export function MobileNav({ mobileMenuOpen, setMobileMenuOpen }: MobileNavProps)
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg">
           <div className="px-6 py-4 space-y-4">
-            <Link 
-              href="#features" 
-              className="block text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
+            <button 
+              className="block w-full text-left text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+              onClick={() => {
+                document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                setMobileMenuOpen(false);
+              }}
             >
               Features
-            </Link>
-            <Link 
-              href="#how-it-works" 
-              className="block text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
+            </button>
+            <button 
+              className="block w-full text-left text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+              onClick={() => {
+                document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+                setMobileMenuOpen(false);
+              }}
             >
               How it Works
-            </Link>
+            </button>
             <Link 
               href="/auth/signin" 
               className="block bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors text-center"

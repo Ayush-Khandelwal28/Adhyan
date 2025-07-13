@@ -4,12 +4,18 @@ import { ThemeToggle } from '@/components/theme-toggle';
 export function DesktopNav() {
   return (
     <div className="hidden md:flex items-center space-x-8">
-      <Link href="#features" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+      <button 
+        onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+        className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+      >
         Features
-      </Link>
-      <Link href="#how-it-works" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+      </button>
+      <button 
+        onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+        className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+      >
         How it Works
-      </Link>
+      </button>
       <ThemeToggle />
       <Link 
         href="/auth/signin" 
