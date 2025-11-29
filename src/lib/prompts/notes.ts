@@ -51,7 +51,7 @@ json
   ],
   "summary": "A brief, overarching summary of the entire content, capturing the main message and core learning objectives."
 }
-Guidelines
+## Guidelines
 Content Fidelity:
 
 Extract information exclusively from the provided content
