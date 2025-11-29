@@ -1,12 +1,9 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { getGeminiClient } from "./client";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { JsonParser } from "@/lib/jsonParser"
 import { StudyNotesStructure } from "../types";
 
-const llm = new ChatGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_API_KEY,
-  model: "gemini-2.0-flash",
-});
+const llm = getGeminiClient();
 
 export async function generateStructuredNotes(fullContent: string): Promise<StudyNotesStructure> {
   const messages = [

@@ -1,13 +1,10 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { getGeminiClient } from "@/lib/langchain/client";
 import { getSystemPrompt, getHumanPrompt } from "@/lib/quizzes/prompts";
 import { JsonParser } from "@/lib/jsonParser";
 import { ExtractedQuizContent, Quiz, QuestionType, QuizQuestion, MCQOption } from "@/lib/types";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 
-const llm = new ChatGoogleGenerativeAI({
-    apiKey: process.env.GOOGLE_API_KEY,
-    model: "gemini-2.0-flash",
-});
+const llm = getGeminiClient();
 
 export default async function generateQuizzes(
     type: QuestionType,

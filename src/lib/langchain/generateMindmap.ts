@@ -1,14 +1,9 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { getGeminiClient } from "./client";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { parseMindMap } from "@/lib/jsonParser"
 import { StudyNotesStructure, MindMapStructure } from "@/lib/types";
 
-
-
-const llm = new ChatGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_API_KEY,
-  model: "gemini-2.0-flash",
-})
+const llm = getGeminiClient();
 
 export default async function generateMindmap(
   content: StudyNotesStructure
