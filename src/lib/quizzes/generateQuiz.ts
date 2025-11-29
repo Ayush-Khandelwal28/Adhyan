@@ -1,5 +1,5 @@
 import { getGeminiClient } from "@/lib/langchain/client";
-import { getSystemPrompt, getHumanPrompt } from "@/lib/quizzes/prompts";
+import { getSystemPrompt, getHumanPrompt } from "@/lib/prompts/quiz";
 import { JsonParser } from "@/lib/jsonParser";
 import { ExtractedQuizContent, Quiz, QuestionType, QuizQuestion, MCQOption } from "@/lib/types";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";

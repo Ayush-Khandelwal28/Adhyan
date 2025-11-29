@@ -2,6 +2,7 @@ import { getGeminiClient } from "./client";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { JsonParser } from "@/lib/jsonParser"
 import { RecallContentItem, ApplicationContentItem, Flashcard } from "@/lib/types";
+import { getFlashcardSystemPrompt, getFlashcardHumanPrompt } from "@/lib/prompts/flashcards";
 
 
 type FlashcardType = 'recall' | 'application';
@@ -26,23 +27,10 @@ export default async function generateFlashcards(
 
     const messages = [
         new SystemMessage({
-            content: type === 'recall'
-                ? "You are an expert at creating recall-based flashcards that test memory of key facts, definitions, and concepts."
-                : "You are an expert at creating application-based flashcards that test understanding and relationships between concepts."
+            content: getFlashcardSystemPrompt(type)
         }),
         new HumanMessage({
-            content: `
-Generate ${type} flashcards from the following content. Format as JSON array with "front" and "back" fields.
-
-${type === 'recall'
-                    ? 'Focus on testing recall of key facts, definitions, and main points.'
-                    : 'Focus on testing application, analysis, and connections between concepts.'}
-
-Content:
-${JSON.stringify(formatted, null, 2)}
-
-Return only the JSON array, no extra text.`
-                .trim(),
+            content: getFlashcardHumanPrompt(type, formatted)
         })
     ];
 
