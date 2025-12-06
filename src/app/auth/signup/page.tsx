@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
@@ -26,7 +26,7 @@ export default function SignUp() {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-    
+
     try {
       console.log('Sign up attempt:', formData);
       const response = await fetch('/api/auth/signup', {
@@ -40,7 +40,21 @@ export default function SignUp() {
       if (response.status === 201) {
         const data = await response.json();
         console.log('Sign up successful:', data);
-        router.push('/auth/signin');
+
+        // Auto login logic
+        const result = await signIn('credentials', {
+          redirect: false,
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (result?.error) {
+          console.error("Auto login failed:", result.error);
+          router.push('/auth/signin');
+        } else {
+          router.push('/dashboard');
+          router.refresh();
+        }
       } else if (response.status === 400) {
         const errorData = await response.json();
         setError(errorData.error || 'Sign up failed');
