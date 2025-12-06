@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronDown, ChevronRight, List, Menu, X } from 'lucide-react';
+import { ArrowUp, ChevronDown, ChevronRight, List, X } from 'lucide-react';
 import { StudyNotesStructure, TableOfContentsItem } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -147,10 +147,10 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({
         <Button
           onClick={() => setIsOpen(!isOpen)}
           variant="outline"
-          size="sm"
-          className="fixed top-4 left-4 z-50 lg:hidden"
+          size="icon"
+          className="fixed bottom-6 right-6 z-50 lg:hidden rounded-full shadow-xl h-12 w-12 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
         >
-          {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          {isOpen ? <X className="w-5 h-5" /> : <List className="w-5 h-5" />}
         </Button>
 
         {/* Mobile TOC Overlay */}
@@ -169,6 +169,17 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({
                   {tocItems.map(item => renderTOCItem(item))}
                 </div>
               </CardContent>
+              <div className="p-4 pt-0 border-t mt-auto">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full flex items-center justify-center text-muted-foreground hover:text-foreground mt-4"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                >
+                  <ArrowUp className="w-4 h-4 mr-2" />
+                  Scroll to Top
+                </Button>
+              </div>
             </Card>
           </div>
         )}
@@ -189,6 +200,17 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({
           {tocItems.map(item => renderTOCItem(item))}
         </div>
       </CardContent>
+      <div className="p-6 pt-0">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full flex items-center justify-center text-muted-foreground hover:text-foreground"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
+          <ArrowUp className="w-4 h-4 mr-2" />
+          Scroll to Top
+        </Button>
+      </div>
     </Card>
   );
 };

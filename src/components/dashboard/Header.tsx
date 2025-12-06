@@ -11,12 +11,12 @@ export function DashboardHeader() {
   };
 
   return (
-    <header className="flex items-center justify-between mb-8">
-      <div className="flex items-center space-x-3">
-        <Brain className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+    <header className="flex w-full items-center justify-between mb-8">
+      <div className="flex items-center space-x-2 md:space-x-3">
+        <Brain className="h-6 w-6 md:h-8 md:w-8 text-blue-600 dark:text-blue-400" />
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Adhyan</h1>
       </div>
-      
+
       <div className="flex items-center space-x-4">
         <ThemeToggle />
         <Button

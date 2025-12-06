@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { TableOfContents } from '@/components/studyPack/TableOfContents';
 import { NotesContent } from '@/components/studyPack/Notes';
 import { StudyTools } from '@/components/studyPack/StudyTools';
-import { ReadingControls } from '@/components/studyPack/ReadingControls';
+// import { ReadingControls } from '@/components/studyPack/ReadingControls';
 import { useStudyPack } from '@/contexts/StudyPackContext';
 
 import { StudyNotesStructure } from '@/lib/types';
@@ -14,7 +14,7 @@ export default function StudyPackPage() {
   const { studyPack, isLoading } = useStudyPack();
   const [studyNotes, setStudyNotes] = useState<StudyNotesStructure | undefined>(undefined);
   const [activeSection, setActiveSection] = useState('section-0');
-  const [fontSize, setFontSize] = useState(16);
+  // const [fontSize, setFontSize] = useState(16);
   const [isMobile, setIsMobile] = useState(false);
 
   const contentRef = useRef<HTMLDivElement>(null);
@@ -28,9 +28,9 @@ export default function StudyPackPage() {
   };
 
   // Scroll to top
-  const handleScrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  // const handleScrollToTop = () => {
+  //   window.scrollTo({ top: 0, behavior: 'smooth' });
+  // };
 
   // Extract study notes when studyPack changes
   useEffect(() => {
@@ -93,7 +93,7 @@ export default function StudyPackPage() {
             {/* Notes Content */}
             <div
               ref={contentRef}
-              style={{ fontSize: `${fontSize}px` }}
+              // style={{ fontSize: `${fontSize}px` }}
               className="prose prose-lg max-w-none dark:prose-invert"
             >
               {studyNotes && (
@@ -121,22 +121,22 @@ export default function StudyPackPage() {
                   onSectionClick={handleSectionClick}
                   isMobile={false}
                 />
-                <ReadingControls
+                {/* <ReadingControls
                   fontSize={fontSize}
                   onFontSizeChange={setFontSize}
                   onScrollToTop={handleScrollToTop}
-                />
+                /> */}
               </div>
             )}
 
             {/* Reading Controls for Mobile - when TOC is not shown */}
             {isMobile && (
               <div className="sticky top-6 z-10">
-                <ReadingControls
+                {/* <ReadingControls
                   fontSize={fontSize}
                   onFontSizeChange={setFontSize}
                   onScrollToTop={handleScrollToTop}
-                />
+                /> */}
               </div>
             )}
           </div>
