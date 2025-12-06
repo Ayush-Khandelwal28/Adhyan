@@ -40,7 +40,8 @@
     "react-intersection-observer": "^9.16.0",
     "reactflow": "^11.11.4",
     "tailwind-merge": "^3.3.1",
-    "unpdf": "^1.0.6"
+    "unpdf": "^1.0.6",
+    "zod": "^3.25.32"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
