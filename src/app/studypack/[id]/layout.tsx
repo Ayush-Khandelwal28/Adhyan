@@ -31,20 +31,24 @@ const StudyPackLayoutContent: React.FC<{ children: React.ReactNode; studyPackId:
     const pageInfo = getCurrentPage();
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-            <div className="h-[120px] p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center">
-                <div className="flex justify-between items-center w-full">
-                    <StudyPackBreadcrumb
-                        studyPackId={studyPackId}
-                        studyPackTitle={studyPack?.title || ''}
-                        currentPage={pageInfo.current}
-                        parentPage={pageInfo.parent}
-                        isLoading={isLoading}
-                    />
-                    <ThemeToggle />
+        <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col">
+            <div className="p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center min-h-[80px]">
+                <div className="flex flex-wrap sm:flex-nowrap justify-between items-center w-full gap-4">
+                    <div className="w-full sm:w-auto flex-1 min-w-0">
+                        <StudyPackBreadcrumb
+                            studyPackId={studyPackId}
+                            studyPackTitle={studyPack?.title || ''}
+                            currentPage={pageInfo.current}
+                            parentPage={pageInfo.parent}
+                            isLoading={isLoading}
+                        />
+                    </div>
+                    <div className="flex-shrink-0 self-start sm:self-center">
+                        <ThemeToggle />
+                    </div>
                 </div>
             </div>
-            <div className="min-h-[calc(100vh-120px)]">
+            <div className="flex-1 w-full max-w-[100vw] overflow-x-hidden">
                 {children}
             </div>
         </div>

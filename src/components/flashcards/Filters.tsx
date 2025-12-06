@@ -41,7 +41,7 @@ export const Filters: React.FC<FlashcardFiltersProps> = ({
 
   const getColorClasses = (type: string, isSelected: boolean) => {
     const baseClasses = "flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-200 cursor-pointer";
-    
+
     if (isSelected) {
       switch (type) {
         case 'definitions':
@@ -83,14 +83,14 @@ export const Filters: React.FC<FlashcardFiltersProps> = ({
   }, 0);
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
+    <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
       {/* Left side - Filters */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
           <Filter className="w-4 h-4" />
           <span className="font-medium">Card Types:</span>
         </div>
-        
+
         {cardTypes.map(({ id, label, count }) => {
           const isSelected = filters[id as keyof FilterState];
           return (
@@ -129,7 +129,7 @@ export const Filters: React.FC<FlashcardFiltersProps> = ({
       </div>
 
       {/* Right side - Results count */}
-      <div className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+      <div className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap self-end xl:self-auto">
         {visibleCards === totalCards ? (
           <span>{totalCards} card{totalCards !== 1 ? 's' : ''}</span>
         ) : (

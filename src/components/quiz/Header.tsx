@@ -17,18 +17,18 @@ export const QuizHeader: React.FC<QuizHeaderProps> = ({
 }) => {
   return (
     <div className="mb-8">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-3">
-          <Brain className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
+        <div className="flex items-center space-x-3 min-w-0">
+          <Brain className="h-8 w-8 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white truncate">
             {title}
           </h1>
         </div>
-        <div className="text-sm md:text-base text-muted-foreground">
+        <div className="text-sm md:text-base text-muted-foreground whitespace-nowrap">
           Question {currentQuestion} of {totalQuestions}
         </div>
       </div>
-      
+
       <div className="space-y-2">
         <div className="flex justify-between text-sm text-muted-foreground">
           <span>Progress</span>

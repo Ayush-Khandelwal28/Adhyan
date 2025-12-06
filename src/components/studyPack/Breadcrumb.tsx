@@ -37,7 +37,7 @@ export const StudyPackBreadcrumb: React.FC<BreadcrumbProps> = ({
 
     return (
         <div className="space-y-4 pb-2">
-            <nav className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 min-h-[20px]">
+            <nav className="flex flex-wrap items-center gap-2 text-sm text-gray-500 dark:text-gray-400 min-h-[20px]">
                 <button
                     onClick={() => router.push("/dashboard")}
                     className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium cursor-pointer"
@@ -50,12 +50,13 @@ export const StudyPackBreadcrumb: React.FC<BreadcrumbProps> = ({
                 ) : (
                     <button
                         onClick={() => router.push(`/studypack/${studyPackId}`)}
-                        className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium cursor-pointer"
+                        className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium cursor-pointer max-w-[150px] truncate"
+                        title={studyPackTitle}
                     >
                         {studyPackTitle}
                     </button>
                 )}
-                <div className="flex items-center min-w-0">
+                <div className="flex items-center min-w-0 flex-1">
                     {parentPage && (
                         <>
                             <span className="text-gray-300 dark:text-gray-600 mx-2">/</span>
@@ -71,7 +72,7 @@ export const StudyPackBreadcrumb: React.FC<BreadcrumbProps> = ({
                                         router.push(route);
                                     }
                                 }}
-                                className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium cursor-pointer"
+                                className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium cursor-pointer whitespace-nowrap"
                             >
                                 {parentPage}
                             </button>
@@ -80,14 +81,14 @@ export const StudyPackBreadcrumb: React.FC<BreadcrumbProps> = ({
                     {currentPage && (
                         <>
                             <span className="text-gray-300 dark:text-gray-600 mx-2">/</span>
-                            <span className="text-gray-700 dark:text-gray-300 font-semibold">{currentPage}</span>
+                            <span className="text-gray-700 dark:text-gray-300 font-semibold truncate max-w-[200px]" title={currentPage}>{currentPage}</span>
                         </>
                     )}
                 </div>
             </nav>
 
-            <div className="flex items-center justify-between min-h-[48px]">
-                <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 min-h-[48px]">
+                <div className="flex items-center space-x-4 w-full sm:w-auto">
                     {/* Back Button */}
                     {currentPage ? (
                         <Button
@@ -112,7 +113,7 @@ export const StudyPackBreadcrumb: React.FC<BreadcrumbProps> = ({
                                     router.push(`/studypack/${studyPackId}`);
                                 }
                             }}
-                            className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                            className="flex-shrink-0 flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
                         >
                             <ArrowLeft className="w-4 h-4" />
                         </Button>
@@ -121,17 +122,17 @@ export const StudyPackBreadcrumb: React.FC<BreadcrumbProps> = ({
                             variant="ghost"
                             size="sm"
                             onClick={() => router.push("/dashboard")}
-                            className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                            className="flex-shrink-0 flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
                         >
                             <ArrowLeft className="w-4 h-4" />
                         </Button>
                     )}
 
-                    <div className="flex items-center space-x-4">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                    <div className="flex items-center space-x-4 min-w-0 flex-1">
+                        <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
                             {getPageIcon(currentPage)}
                         </div>
-                        <div className="min-h-[32px] flex flex-col justify-center">
+                        <div className="min-h-[32px] flex flex-col justify-center min-w-0 flex-1">
                             {isLoading ? (
                                 <div className="space-y-2">
                                     <div className="w-48 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
@@ -139,11 +140,11 @@ export const StudyPackBreadcrumb: React.FC<BreadcrumbProps> = ({
                                 </div>
                             ) : (
                                 <>
-                                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight truncate pr-2">
                                         {currentPage || studyPackTitle}
                                     </h1>
                                     {currentPage && (
-                                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 truncate">
                                             {studyPackTitle}
                                         </p>
                                     )}

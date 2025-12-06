@@ -62,9 +62,9 @@ export const QuizFiltersComponent: React.FC<QuizFiltersProps> = ({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
+    <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
       {/* Left side - Filters */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
           <Filter className="w-4 h-4" />
           <span className="font-medium">Filters:</span>
@@ -72,7 +72,7 @@ export const QuizFiltersComponent: React.FC<QuizFiltersProps> = ({
 
         {/* Quiz Type Filter */}
         <Select value={filters.type} onValueChange={handleTypeChange}>
-          <SelectTrigger className="w-[140px] h-8">
+          <SelectTrigger className="w-full sm:w-[140px] h-8">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -84,7 +84,7 @@ export const QuizFiltersComponent: React.FC<QuizFiltersProps> = ({
 
         {/* Difficulty Filter */}
         <Select value={filters.difficulty} onValueChange={handleDifficultyChange}>
-          <SelectTrigger className="w-[120px] h-8">
+          <SelectTrigger className="w-full sm:w-[120px] h-8">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -97,7 +97,7 @@ export const QuizFiltersComponent: React.FC<QuizFiltersProps> = ({
 
         {/* Sort By */}
         <Select value={sortOption.field} onValueChange={handleSortFieldChange}>
-          <SelectTrigger className="w-[140px] h-8">
+          <SelectTrigger className="w-full sm:w-[140px] h-8">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -135,7 +135,7 @@ export const QuizFiltersComponent: React.FC<QuizFiltersProps> = ({
       </div>
 
       {/* Right side - Results count and Generate button */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap sm:flex-nowrap items-center gap-4 w-full xl:w-auto justify-between xl:justify-end">
         <div className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
           {filteredCount === totalQuizzes ? (
             <span>{totalQuizzes} quiz{totalQuizzes !== 1 ? 'es' : ''}</span>

@@ -57,7 +57,7 @@ export default function Mindmap() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const response = await fetch("/api/mindmap/generate", {
         method: "POST",
         headers: {
@@ -146,7 +146,7 @@ export default function Mindmap() {
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <p className="text-muted-foreground">
-              {error === 'Mindmap not found for this study pack' 
+              {error === 'Mindmap not found for this study pack'
                 ? 'No mind map found for this study pack. Generate one to visualize the content.'
                 : error
               }
@@ -156,8 +156,8 @@ export default function Mindmap() {
               className="w-full cursor-pointer"
               disabled={isLoading}
             >
-              {isLoading ? 'Processing...' : 
-               error === 'Mindmap not found for this study pack' ? 'Generate Mind Map' : 'Try Again'}
+              {isLoading ? 'Processing...' :
+                error === 'Mindmap not found for this study pack' ? 'Generate Mind Map' : 'Try Again'}
             </Button>
           </CardContent>
         </Card>
@@ -182,7 +182,7 @@ export default function Mindmap() {
   }
 
   return (
-    <div className="w-full h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 relative overflow-hidden">
+    <div className="w-full h-[calc(100vh-120px)] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 relative overflow-hidden">
       <ReactFlow
         nodes={nodes}
         edges={edges}
