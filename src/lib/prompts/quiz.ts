@@ -1,9 +1,8 @@
-
-import {QuestionType, ExtractedQuizContent} from "@/lib/types";
+import { QuestionType, ExtractedQuizContent } from "@/lib/types";
 
 export function getSystemPrompt(type: QuestionType, includeExplanations: boolean): string {
-  const basePrompt = type === 'MCQ'
-    ? `You are an expert at creating high-quality multiple-choice questions for educational assessment. 
+    const basePrompt = type === 'MCQ'
+        ? `You are an expert at creating high-quality multiple-choice questions for educational assessment. 
 
 Your MCQ questions should:
 - Have exactly 4 options (A, B, C, D)
@@ -14,7 +13,7 @@ Your MCQ questions should:
 - Avoid "all of the above" or "none of the above" options
 - Use parallel structure in all options`
 
-    : `You are an expert at creating high-quality True/False questions for educational assessment.
+        : `You are an expert at creating high-quality True/False questions for educational assessment.
 
 Your True/False questions should:
 - Present clear, unambiguous statements
@@ -23,25 +22,25 @@ Your True/False questions should:
 - Include both true and false statements in balanced proportions
 - Focus on important concepts, not trivial details`;
 
-  if (includeExplanations) {
-    return basePrompt + `\n\nAlways provide brief explanations for why the answer is correct.`;
-  }
+    if (includeExplanations) {
+        return basePrompt + `\n\nAlways provide brief explanations for why the answer is correct.`;
+    }
 
-  return basePrompt;
+    return basePrompt;
 }
 
 export function getHumanPrompt(
-  type: QuestionType,
-  content: ExtractedQuizContent,
-  questionCount: number,
-  includeExplanations: boolean,
-  difficulty?: string
+    type: QuestionType,
+    content: ExtractedQuizContent,
+    questionCount: number,
+    includeExplanations: boolean,
+    difficulty?: string
 ): string {
-  const contentSummary = getContentSummary(content);
-  
-  const formatInstructions = type === 'MCQ' ? getMCQFormatInstructions() : getTrueFalseFormatInstructions();
+    const contentSummary = getContentSummary(content);
 
-  return `
+    const formatInstructions = type === 'MCQ' ? getMCQFormatInstructions() : getTrueFalseFormatInstructions();
+
+    return `
 Generate ${questionCount} ${type === 'MCQ' ? 'multiple-choice' : 'true/false'} questions of difficulty ${difficulty} from the following study content.
 
 CONTENT TO CREATE QUESTIONS FROM:
@@ -59,32 +58,32 @@ Return only the JSON array, no extra text or markdown.`.trim();
 }
 
 function getContentSummary(content: ExtractedQuizContent): string {
-  let summary = `Title: ${content.title}\nSummary: ${content.summary}\n\nSECTIONS:\n`;
-  
-  content.extractedSections.forEach((section, index) => {
-    summary += `\n${index + 1}. ${section.heading}${section.parentHeading ? ` (under ${section.parentHeading})` : ''}\n`;
-    
-    if (section.points.length > 0) {
-      summary += `   Key Points:\n`;
-      section.points.forEach(point => summary += `   - ${point}\n`);
-    }
-    
-    if (section.definitions.length > 0) {
-      summary += `   Definitions:\n`;
-      section.definitions.forEach(def => summary += `   - ${def}\n`);
-    }
-    
-    if (section.examples.length > 0) {
-      summary += `   Examples:\n`;
-      section.examples.forEach(ex => summary += `   - ${ex}\n`);
-    }
-  });
-  
-  return summary;
+    let summary = `Title: ${content.title}\nSummary: ${content.summary}\n\nSECTIONS:\n`;
+
+    content.extractedSections.forEach((section, index) => {
+        summary += `\n${index + 1}. ${section.heading}${section.parentHeading ? ` (under ${section.parentHeading})` : ''}\n`;
+
+        if (section.points.length > 0) {
+            summary += `   Key Points:\n`;
+            section.points.forEach(point => summary += `   - ${point}\n`);
+        }
+
+        if (section.definitions.length > 0) {
+            summary += `   Definitions:\n`;
+            section.definitions.forEach(def => summary += `   - ${def}\n`);
+        }
+
+        if (section.examples.length > 0) {
+            summary += `   Examples:\n`;
+            section.examples.forEach(ex => summary += `   - ${ex}\n`);
+        }
+    });
+
+    return summary;
 }
 
 function getMCQFormatInstructions(): string {
-  return `
+    return `
 FORMAT REQUIREMENTS:
 Return a JSON array where each question follows this exact structure:
 [
@@ -104,7 +103,7 @@ CRITICAL: Ensure exactly one option has "isCorrect": true, all others must be fa
 }
 
 function getTrueFalseFormatInstructions(): string {
-  return `
+    return `
 FORMAT REQUIREMENTS:
 Return a JSON array where each question follows this exact structure:
 [
